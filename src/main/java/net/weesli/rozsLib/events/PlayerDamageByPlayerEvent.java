@@ -14,6 +14,8 @@ public class PlayerDamageByPlayerEvent extends Event implements Cancellable {
     private Player damager;
     private double damage;
 
+    private boolean canceled;
+
     public PlayerDamageByPlayerEvent(Player player, Player damager, double damage) {
         this.player = player;
         this.damager = damager;
@@ -26,12 +28,12 @@ public class PlayerDamageByPlayerEvent extends Event implements Cancellable {
 
     @Override
     public boolean isCancelled() {
-        return false;
+        return canceled;
     }
 
     @Override
     public void setCancelled(boolean cancel) {
-
+        canceled = cancel;
     }
 
     @Override

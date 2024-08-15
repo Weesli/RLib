@@ -18,6 +18,9 @@ public class LibListener implements Listener {
             if (e.isCancelled()){
                 playerDamageEvent.setCancelled(true);
             }
+            if (playerDamageEvent.isCancelled()){
+                e.setCancelled(true);
+            }
             Bukkit.getPluginManager().callEvent(playerDamageEvent);
         }
     }
@@ -30,6 +33,9 @@ public class LibListener implements Listener {
             PlayerDamageByPlayerEvent playerDamageByEntityEvent = new PlayerDamageByPlayerEvent(player, damager, e.getDamage());
             if (e.isCancelled()){
                 playerDamageByEntityEvent.setCancelled(true);
+            }
+            if (playerDamageByEntityEvent.isCancelled()){
+                e.setCancelled(true);
             }
             Bukkit.getPluginManager().callEvent(playerDamageByEntityEvent);
         }
