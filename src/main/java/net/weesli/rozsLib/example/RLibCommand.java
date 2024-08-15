@@ -1,5 +1,6 @@
 package net.weesli.rozsLib.example;
 
+import net.weesli.rozsLib.ColorManager.ColorBuilder;
 import net.weesli.rozsLib.CommandBuilder;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -20,7 +21,7 @@ public class RLibCommand extends CommandBuilder {
 
     @Override
     protected boolean Command(CommandSender sender, Command command, String s, String[] strings) {
-        sender.sendMessage("Running RLib "+getPlugin().getDescription().getVersion());
+        sender.sendMessage(ColorBuilder.convertColors("&bRunning RLib "+getPlugin().getDescription().getVersion()));
         return false;
     }
 
