@@ -5,6 +5,7 @@ import net.weesli.rozsLib.ConfigurationManager.JsonFileBuilder;
 import net.weesli.rozsLib.ConfigurationManager.YamlFileBuilder;
 import net.weesli.rozsLib.DataBaseManager.MySQL.Column;
 import net.weesli.rozsLib.DataBaseManager.MySQL.MySQLBuilder;
+import net.weesli.rozsLib.events.LibListener;
 import net.weesli.rozsLib.example.RLibCommand;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -37,6 +38,10 @@ public final class RozsLib extends JavaPlugin {
         }else {
             Bukkit.getConsoleSender().sendMessage(ChatColor.GREEN + "[RLib] You are using the latest version of RLib.");
         }
+
+        // register lib events
+
+        this.getServer().getPluginManager().registerEvents(new LibListener(), this);
 
         /**
          * Command register like this
