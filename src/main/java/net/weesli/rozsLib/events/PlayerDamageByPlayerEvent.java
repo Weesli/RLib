@@ -36,7 +36,7 @@ public class PlayerDamageByPlayerEvent extends Event implements Cancellable {
 
     @Override
     public @NotNull HandlerList getHandlers() {
-        return null;
+        return handlers;
     }
 
     public Player getPlayer() {
