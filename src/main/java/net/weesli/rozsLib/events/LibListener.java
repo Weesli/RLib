@@ -15,13 +15,10 @@ public class LibListener implements Listener {
         if (e.getEntityType().equals(EntityType.PLAYER)){
             Player player = (Player) e.getEntity();
             PlayerDamageEvent playerDamageEvent = new PlayerDamageEvent(player, e.getDamage());
-            if (e.isCancelled()){
-                playerDamageEvent.setCancelled(true);
-            }
+            Bukkit.getPluginManager().callEvent(playerDamageEvent);
             if (playerDamageEvent.isCancelled()){
                 e.setCancelled(true);
             }
-            Bukkit.getPluginManager().callEvent(playerDamageEvent);
         }
     }
 
@@ -31,13 +28,10 @@ public class LibListener implements Listener {
             Player player = (Player) e.getEntity();
             Player damager = (Player) e.getDamager();
             PlayerDamageByPlayerEvent playerDamageByEntityEvent = new PlayerDamageByPlayerEvent(player, damager, e.getDamage());
-            if (e.isCancelled()){
-                playerDamageByEntityEvent.setCancelled(true);
-            }
+            Bukkit.getPluginManager().callEvent(playerDamageByEntityEvent);
             if (playerDamageByEntityEvent.isCancelled()){
                 e.setCancelled(true);
             }
-            Bukkit.getPluginManager().callEvent(playerDamageByEntityEvent);
         }
     }
 
