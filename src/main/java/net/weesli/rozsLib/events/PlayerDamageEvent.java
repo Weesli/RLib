@@ -14,12 +14,10 @@ public class PlayerDamageEvent extends Event implements Cancellable {
     private boolean cancelled;
 
     private Player player;
-    private DamageSource source;
     private double damage;
 
-    public PlayerDamageEvent(Player player, DamageSource source, double damage) {
+    public PlayerDamageEvent(Player player, double damage) {
         this.player = player;
-        this.source = source;
         this.damage = damage;
     }
 
@@ -44,10 +42,6 @@ public class PlayerDamageEvent extends Event implements Cancellable {
 
     public Player getPlayer() {
         return player;
-    }
-
-    public DamageSource getAttacker() {
-        return source;
     }
 
     public double getDamage() {

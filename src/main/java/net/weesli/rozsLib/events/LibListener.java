@@ -14,7 +14,7 @@ public class LibListener implements Listener {
     public void onDamage(EntityDamageEvent e){
         if (e.getEntityType().equals(EntityType.PLAYER)){
             Player player = (Player) e.getEntity();
-            PlayerDamageEvent playerDamageEvent = new PlayerDamageEvent(player,e.getDamageSource(), e.getDamage());
+            PlayerDamageEvent playerDamageEvent = new PlayerDamageEvent(player, e.getDamage());
             if (e.isCancelled()){
                 playerDamageEvent.setCancelled(true);
             }
