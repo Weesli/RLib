@@ -1,8 +1,14 @@
 package net.weesli.rozsLib;
 
+import net.weesli.rozsLib.BossBarManager.BossBarManager;
+import net.weesli.rozsLib.ConfigurationManager.JsonFileBuilder;
+import net.weesli.rozsLib.ConfigurationManager.YamlFileBuilder;
+import net.weesli.rozsLib.DataBaseManager.MySQL.Column;
+import net.weesli.rozsLib.DataBaseManager.MySQL.MySQLBuilder;
 import net.weesli.rozsLib.example.RLibCommand;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.boss.BossBar;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -13,13 +19,13 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.ProtocolException;
 import java.net.URL;
 
 public final class RozsLib extends JavaPlugin {
 
     private static final String GITHUB_API_URL = "https://api.github.com/repos/Weesli/RLib/releases";
+
+    private static MySQLBuilder builder = new MySQLBuilder("localhost", 3306, "example", "root", "");
 
     @Override
     public void onEnable() {
@@ -32,15 +38,17 @@ public final class RozsLib extends JavaPlugin {
             Bukkit.getConsoleSender().sendMessage(ChatColor.GREEN + "[RLib] You are using the latest version of RLib.");
         }
 
-        // Example usage for Command
+        /**
+         * Command register like this
+         */
         new RLibCommand(this).setCommand("RLib").build();
-
-
     }
+
 
     @Override
     public void onDisable() {
         Bukkit.getConsoleSender().sendMessage("Stopping plugin...");
+        BossBarManager.getRegisteredBars().values().forEach(BossBar::removeAll);
     }
 
 
@@ -65,7 +73,7 @@ public final class RozsLib extends JavaPlugin {
                 JSONParser parser = new JSONParser();
                 JSONArray releases = (JSONArray) parser.parse(response.toString());
 
-                if (releases.size() > 0) {
+                if (!releases.isEmpty()) {
                     JSONObject latestRelease = (JSONObject) releases.get(0);
                     String tagName = latestRelease.get("tag_name").toString();
                     if (tagName.equals(this.getDescription().getVersion())){
@@ -79,14 +87,13 @@ public final class RozsLib extends JavaPlugin {
             } else {
                 return false;
             }
-        } catch (ProtocolException e) {
-            throw new RuntimeException(e);
-        } catch (MalformedURLException e) {
-            throw new RuntimeException(e);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } catch (ParseException e) {
-            throw new RuntimeException(e);
+        } catch (IOException | ParseException e) {
+            System.out.println("Error parsing");
         }
+        return false;
+    }
+
+    public static MySQLBuilder getBuilder() {
+        return builder;
     }
 }

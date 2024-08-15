@@ -6,7 +6,7 @@ import org.bukkit.plugin.Plugin;
 import java.util.List;
 
 /**
- *  Usage extends format for this class
+ *  The extends for this class is used
  *  @Author Weesli
  *
  */
@@ -29,15 +29,14 @@ public abstract class CommandBuilder {
     }
 
     // method to build the command, sets the executor and tabCompleter.
-    public CommandBuilder build(){
+    public void build(){
         plugin.getServer().getPluginCommand(command).setExecutor(this::Command);
-        plugin.getServer().getPluginCommand(command).setTabCompleter(this::onTabComplete);
-        return this;
+        plugin.getServer().getPluginCommand(command).setTabCompleter(this::TabComplete);
     }
 
-    protected abstract boolean Command(CommandSender sender, Command command, String s, String[] strings);
+    protected abstract boolean Command(CommandSender sender, Command command, String s, String[] args);
 
-    protected abstract List<String> onTabComplete(CommandSender sender, Command command, String s, String[] strings);
+    protected abstract List<String> TabComplete(CommandSender sender, Command command, String s, String[] args);
 
     public String getCommand() {
         return command;
