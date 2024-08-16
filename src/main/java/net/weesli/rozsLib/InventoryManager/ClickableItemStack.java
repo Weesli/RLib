@@ -27,6 +27,11 @@ public abstract class ClickableItemStack implements Listener {
         Bukkit.getServer().getPluginManager().registerEvents(this, plugin);
     }
 
+    public ClickableItemStack setCancelled(boolean cancelled) {
+        this.cancelled = cancelled;
+        return this;
+    }
+
     protected abstract void addListener(InventoryClickEvent e);
 
     public ItemStack getItemStack() {
@@ -37,9 +42,6 @@ public abstract class ClickableItemStack implements Listener {
         return cancelled;
     }
 
-    public void setCancelled(boolean cancelled) {
-        this.cancelled = cancelled;
-    }
 
     @EventHandler
     public void onClick(InventoryClickEvent e){
