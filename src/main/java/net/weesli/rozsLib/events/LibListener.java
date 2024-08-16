@@ -45,14 +45,14 @@ public class LibListener implements Listener {
         if (e.getAction().isLeftClick()){
             BlockLeftClickEvent event = new BlockLeftClickEvent(player,block);
             Bukkit.getPluginManager().callEvent(event);
-            if (e.isCancelled()){
-                event.setCancelled(true);
+            if (event.isCancelled()){
+                e.setCancelled(true);
             }
         } else if (e.getAction().isRightClick()) {
             BlockRightClickEvent event = new BlockRightClickEvent(player, block);
             Bukkit.getPluginManager().callEvent(event);
-            if (e.isCancelled()){
-                event.setCancelled(true);
+            if (event.isCancelled()){
+                e.setCancelled(true);
             }
         }
     }
