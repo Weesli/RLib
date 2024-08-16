@@ -120,7 +120,7 @@ public class YamlFileBuilder {
     // optional configuration getters and setters
 
     public ItemStack getItemStack(String path){
-        ItemStack itemStack = new ItemStack(Material.getMaterial(path + ".material"));
+        ItemStack itemStack = new ItemStack(Material.getMaterial(configuration.getString(path + ".material")));
         ItemMeta meta = itemStack.getItemMeta();
         if (configuration.get(path + ".title") != null) meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', configuration.getString(path + ".title")));
         List<String> lores = new ArrayList<>();
@@ -134,7 +134,7 @@ public class YamlFileBuilder {
     }
 
     public ItemStack getItemStackWithPlaceholder(Player player, String path){
-        ItemStack itemStack = new ItemStack(Material.getMaterial(path + ".material"));
+        ItemStack itemStack = new ItemStack(Material.getMaterial(configuration.getString(path + ".material")));
         ItemMeta meta = itemStack.getItemMeta();
         if (configuration.get(path + ".title") != null) meta.setDisplayName(PlaceholderAPI.setPlaceholders(player, ChatColor.translateAlternateColorCodes('&', configuration.getString(path + ".title"))));
         List<String> lores = new ArrayList<>();
