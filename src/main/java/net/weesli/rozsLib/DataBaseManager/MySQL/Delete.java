@@ -19,16 +19,15 @@ public class Delete {
     }
 
     public String getSqlQuery() {
-        String whereClause = where.entrySet().stream()
-                .map(entry -> entry.getKey() + " = ?")
+        String whereClause = where.keySet().stream()
+                .map(s -> s + " = ?")
                 .collect(Collectors.joining(" AND "));
 
         return "DELETE FROM " + table + " WHERE " + whereClause + ";";
     }
 
     public void execute() throws SQLException {
-        try (Connection connection = getConnection();
-             PreparedStatement statement = connection.prepareStatement(getSqlQuery())) {
+        try (PreparedStatement statement = connection.prepareStatement(getSqlQuery())) {
 
             int index = 1;
             for (String value : where.values()) {
@@ -39,8 +38,5 @@ public class Delete {
         }
     }
 
-    private Connection getConnection() {
-        return connection;
-    }
 
 }

@@ -148,10 +148,6 @@ public class YamlFileBuilder {
     }
 
     public Location getLocation(String path){
-        if (!path.contains(".world")){
-            Bukkit.getServer().getConsoleSender().sendMessage("[RLib] Error: Invalid path for location: " + path);
-            return null;
-        }
         World world = Bukkit.getWorld(configuration.getString(path + ".world"));
         double x = configuration.getDouble(path + ".x");
         double y = configuration.getDouble(path + ".y");
