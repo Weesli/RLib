@@ -43,11 +43,5 @@ public abstract class ClickableItemStack implements Listener {
     }
 
 
-    @EventHandler
-    public void onClick(InventoryClickEvent e){
-        if(e.getClickedInventory() == inventory && e.getCurrentItem() != null && e.getCurrentItem().isSimilar(itemStack)){
-            addListener(e);
-            e.setCancelled(isCancelled());
-        }
-    }
+
 }
