@@ -118,6 +118,12 @@ public class MySQLBuilder {
         value.execute();
     }
 
+    public Result getResult(String sql) throws SQLException{
+        try (Statement statement = connection.createStatement(); ResultSet resultSet = statement.executeQuery(sql)) {
+            return new Result(resultSet);
+        }
+    }
+
     public ItemStack getItemStack(SQLItemStack value) throws SQLException {
         if (value == null) {
             throw new IllegalArgumentException("Values cannot be null or empty");
