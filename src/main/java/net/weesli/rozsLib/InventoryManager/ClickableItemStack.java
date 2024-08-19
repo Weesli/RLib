@@ -21,7 +21,8 @@ public abstract class ClickableItemStack implements Listener {
     private Inventory inventory;
 
     private boolean cancelled = false;
-    private  boolean clickSound = true;
+    private boolean clickSound = true;
+    private Sound sound = Sound.UI_BUTTON_CLICK;
 
     public ClickableItemStack(Plugin plugin,ItemStack itemStack, Inventory inventory) {
         this.itemStack = itemStack;
@@ -35,6 +36,11 @@ public abstract class ClickableItemStack implements Listener {
     }
     public ClickableItemStack setClickSound(boolean clickSound) {
         this.clickSound = clickSound;
+        return this;
+    }
+
+    public ClickableItemStack setSound(Sound sound) {
+        this.sound = sound;
         return this;
     }
 
@@ -52,13 +58,17 @@ public abstract class ClickableItemStack implements Listener {
         return clickSound;
     }
 
+    public Sound getSound() {
+        return sound;
+    }
+
     @EventHandler
     public void onInventoryClick(InventoryClickEvent e) {
         if (e.getCurrentItem() == null){return;}
         if (!e.getClickedInventory().equals(inventory)){return;}
         if (e.getCurrentItem().isSimilar(itemStack)){
             if (isClickSound()){
-                e.getWhoClicked().getWorld().playSound(e.getWhoClicked().getLocation(), Sound.UI_BUTTON_CLICK, 3,1);
+                e.getWhoClicked().getWorld().playSound(e.getWhoClicked().getLocation(), getSound(), 3,1);
             }
             addListener(e);
             e.setCancelled(isCancelled());
