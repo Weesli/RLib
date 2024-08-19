@@ -1,6 +1,7 @@
 package net.weesli.rozsLib.InventoryManager;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Sound;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -20,6 +21,7 @@ public abstract class ClickableItemStack implements Listener {
     private Inventory inventory;
 
     private boolean cancelled = false;
+    private  boolean clickSound = true;
 
     public ClickableItemStack(Plugin plugin,ItemStack itemStack, Inventory inventory) {
         this.itemStack = itemStack;
@@ -29,6 +31,10 @@ public abstract class ClickableItemStack implements Listener {
 
     public ClickableItemStack setCancelled(boolean cancelled) {
         this.cancelled = cancelled;
+        return this;
+    }
+    public ClickableItemStack setClickSound(boolean clickSound) {
+        this.clickSound = clickSound;
         return this;
     }
 
@@ -42,18 +48,21 @@ public abstract class ClickableItemStack implements Listener {
         return cancelled;
     }
 
+    public boolean isClickSound() {
+        return clickSound;
+    }
+
     @EventHandler
     public void onInventoryClick(InventoryClickEvent e) {
-        if (!e.getInventory().equals(inventory)) return;
-        if (e.getCurrentItem() == null) return;
-        if (e.getWhoClicked().getInventory().equals(inventory)) return;
-        if (e.getWhoClicked().getInventory().getItemInMainHand().equals(itemStack)) return;
-        if (e.isShiftClick() && e.isLeftClick()){
+        if (e.getCurrentItem() == null){return;}
+        if (!e.getClickedInventory().equals(inventory)){return;}
+        if (e.getCurrentItem().isSimilar(itemStack)){
+            if (isClickSound()){
+                e.getWhoClicked().getWorld().playSound(e.getWhoClicked().getLocation(), Sound.UI_BUTTON_CLICK, 3,1);
+            }
             addListener(e);
             e.setCancelled(isCancelled());
         }
     }
-
-
 
 }
