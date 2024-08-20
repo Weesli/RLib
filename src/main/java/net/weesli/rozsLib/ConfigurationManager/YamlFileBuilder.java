@@ -96,17 +96,8 @@ public class YamlFileBuilder {
 
 
     public void reload() {
-        try {
-            FileConfiguration newConfig = YamlConfiguration.loadConfiguration(file);
-            InputStream defConfigStream = plugin.getResource(fileName + ".yml");
-            if (defConfigStream != null) {
-                YamlConfiguration defConfig = YamlConfiguration.loadConfiguration(new InputStreamReader(defConfigStream, Charsets.UTF_8));
-                newConfig.setDefaults(defConfig);
-            }
-            configuration = newConfig;
-        } catch (Exception e) {
-            Bukkit.getServer().getConsoleSender().sendMessage("[RLib] Error: Failed to reload configuration");
-        }
+        File newfile = new File(path, fileName + ".yml");
+        configuration = YamlConfiguration.loadConfiguration(newfile);
     }
 
     public String getFileName(){
