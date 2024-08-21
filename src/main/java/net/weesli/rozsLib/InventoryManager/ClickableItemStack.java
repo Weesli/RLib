@@ -48,6 +48,7 @@ public class ClickableItemStack implements Listener {
     public ClickableItemStack setSound(Sound sound) {
         this.sound = sound;
         return this;
+
     }
 
     public ItemStack getItemStack() {

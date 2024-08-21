@@ -6,4 +6,5 @@ public interface ClickEvent {
 
     void onClick(InventoryClickEvent event);
 
+
 }

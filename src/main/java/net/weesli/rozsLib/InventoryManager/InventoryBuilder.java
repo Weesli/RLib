@@ -26,6 +26,7 @@ public class InventoryBuilder {
 
     public void setItem(int slot, ClickableItemStack itemStack) {
         inventory.setItem(slot, itemStack.getItemStack());
+
     }
 
     public void setItem(int slot, ItemStack itemStack) {
