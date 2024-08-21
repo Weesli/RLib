@@ -1,6 +1,5 @@
 package net.weesli.rozsLib.ConfigurationManager;
 
-import com.google.common.base.Charsets;
 import me.clip.placeholderapi.PlaceholderAPI;
 import org.bukkit.*;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -62,7 +61,7 @@ public class YamlFileBuilder {
         return configuration;
     }
 
-    public void create(){
+    public void create() {
         if (!file.exists()) {
             try {
                 if (isResource) {
@@ -87,10 +86,21 @@ public class YamlFileBuilder {
                 Bukkit.getServer().getConsoleSender().sendMessage("[RLib] Error: Failed to create file");
             }
         }
+
         configuration = YamlConfiguration.loadConfiguration(file);
-        if (isResource){
-            configuration.options().copyDefaults(true);
-            save();
+
+        if (isResource) {
+            InputStream defConfigStream = plugin.getResource(fileName + ".yml");
+            if (defConfigStream != null) {
+                YamlConfiguration defaultConfig = YamlConfiguration.loadConfiguration(new InputStreamReader(defConfigStream));
+                for (String key : defaultConfig.getKeys(true)) {
+                    if (!configuration.contains(key)) {
+                        configuration.set(key, defaultConfig.get(key));
+                    }
+                }
+                save();
+                Bukkit.getServer().getConsoleSender().sendMessage("[RLib] Config updated with defaults: " + fileName + ".yml");
+            }
         }
     }
 

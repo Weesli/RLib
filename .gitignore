@@ -8,6 +8,8 @@
 # IntelliJ
 out/
 
+*.xml
+
 # Compiled class file
 *.class
 

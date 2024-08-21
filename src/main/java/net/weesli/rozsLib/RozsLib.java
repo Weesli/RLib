@@ -1,10 +1,7 @@
 package net.weesli.rozsLib;
 
 import net.weesli.rozsLib.BossBarManager.BossBarManager;
-import net.weesli.rozsLib.ConfigurationManager.JsonFileBuilder;
 import net.weesli.rozsLib.ConfigurationManager.YamlFileBuilder;
-import net.weesli.rozsLib.DataBaseManager.MySQL.Column;
-import net.weesli.rozsLib.DataBaseManager.MySQL.MySQLBuilder;
 import net.weesli.rozsLib.events.LibListener;
 import net.weesli.rozsLib.example.RLibCommand;
 import org.bukkit.Bukkit;
@@ -25,8 +22,6 @@ import java.net.URL;
 public final class RozsLib extends JavaPlugin {
 
     private static final String GITHUB_API_URL = "https://api.github.com/repos/Weesli/RLib/releases";
-
-    private static MySQLBuilder builder = new MySQLBuilder("localhost", 3306, "example", "root", "");
 
     @Override
     public void onEnable() {
@@ -96,9 +91,5 @@ public final class RozsLib extends JavaPlugin {
             System.out.println("Error parsing");
         }
         return false;
-    }
-
-    public static MySQLBuilder getBuilder() {
-        return builder;
     }
 }
