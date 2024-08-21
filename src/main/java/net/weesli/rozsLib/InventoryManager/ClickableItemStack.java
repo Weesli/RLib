@@ -15,10 +15,11 @@ import org.bukkit.plugin.Plugin;
  * Clickable item for InventoryBuilder
  */
 
-public abstract class ClickableItemStack implements Listener {
+public class ClickableItemStack implements Listener {
 
     private ItemStack itemStack;
     private Inventory inventory;
+    private ClickEvent event;
 
     private boolean cancelled = false;
     private boolean clickSound = true;
@@ -28,6 +29,11 @@ public abstract class ClickableItemStack implements Listener {
         this.itemStack = itemStack;
         this.inventory = inventory;
         Bukkit.getServer().getPluginManager().registerEvents(this, plugin);
+    }
+
+    public ClickableItemStack setEvent(ClickEvent event) {
+        this.event = event;
+        return this;
     }
 
     public ClickableItemStack setCancelled(boolean cancelled) {
@@ -43,8 +49,6 @@ public abstract class ClickableItemStack implements Listener {
         this.sound = sound;
         return this;
     }
-
-    protected abstract void addListener(InventoryClickEvent e);
 
     public ItemStack getItemStack() {
         return itemStack;
@@ -70,7 +74,7 @@ public abstract class ClickableItemStack implements Listener {
             if (isClickSound()){
                 e.getWhoClicked().getWorld().playSound(e.getWhoClicked().getLocation(), getSound(), 3,1);
             }
-            addListener(e);
+            event.onClick(e);
             e.setCancelled(isCancelled());
         }
     }
