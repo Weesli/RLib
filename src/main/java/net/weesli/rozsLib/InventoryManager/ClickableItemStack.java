@@ -1,5 +1,6 @@
 package net.weesli.rozsLib.InventoryManager;
 
+import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.event.EventHandler;
@@ -17,12 +18,16 @@ import org.bukkit.plugin.Plugin;
 
 public class ClickableItemStack implements Listener {
 
+    @Getter
     private ItemStack itemStack;
     private Inventory inventory;
     private ClickEvent event;
 
+    @Getter
     private boolean cancelled = false;
+    @Getter
     private boolean clickSound = true;
+    @Getter
     private Sound sound = Sound.UI_BUTTON_CLICK;
 
     public ClickableItemStack(Plugin plugin,ItemStack itemStack, Inventory inventory) {
@@ -49,22 +54,6 @@ public class ClickableItemStack implements Listener {
         this.sound = sound;
         return this;
 
-    }
-
-    public ItemStack getItemStack() {
-        return itemStack;
-    }
-
-    public boolean isCancelled() {
-        return cancelled;
-    }
-
-    public boolean isClickSound() {
-        return clickSound;
-    }
-
-    public Sound getSound() {
-        return sound;
     }
 
     @EventHandler

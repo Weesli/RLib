@@ -1,5 +1,6 @@
 package net.weesli.rozsLib.InventoryManager;
 
+import lombok.Getter;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
@@ -11,14 +12,15 @@ import org.bukkit.plugin.Plugin;
  */
 public class InventoryBuilder {
 
-    private Plugin plugin;
+    @Getter
     private String title;
+    @Getter
     private int size;
 
     private final Inventory inventory;
 
+
     public InventoryBuilder(Plugin plugin, String title, int size) {
-        this.plugin = plugin;
         this.title = title;
         this.size = size;
         inventory = plugin.getServer().createInventory(null, size, title);
@@ -49,11 +51,5 @@ public class InventoryBuilder {
         return inventory;
     }
 
-    public String getTitle() {
-        return title;
-    }
 
-    public int getSize() {
-        return size;
-    }
 }

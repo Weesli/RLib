@@ -1,7 +1,6 @@
 package net.weesli.rozsLib;
 
 import net.weesli.rozsLib.BossBarManager.BossBarManager;
-import net.weesli.rozsLib.ConfigurationManager.YamlFileBuilder;
 import net.weesli.rozsLib.events.LibListener;
 import net.weesli.rozsLib.example.RLibCommand;
 import org.bukkit.Bukkit;
@@ -13,15 +12,19 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
+import java.awt.*;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.lang.reflect.InvocationTargetException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.*;
 
 public final class RozsLib extends JavaPlugin {
 
     private static final String GITHUB_API_URL = "https://api.github.com/repos/Weesli/RLib/releases";
+
 
     @Override
     public void onEnable() {
@@ -42,6 +45,7 @@ public final class RozsLib extends JavaPlugin {
          * Command register like this
          */
         new RLibCommand(this).setCommand("RLib").build();
+
     }
 
 
@@ -92,4 +96,5 @@ public final class RozsLib extends JavaPlugin {
         }
         return false;
     }
+
 }
