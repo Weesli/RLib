@@ -52,7 +52,7 @@ public final class RozsLib extends JavaPlugin {
     @Override
     public void onDisable() {
         Bukkit.getConsoleSender().sendMessage("Stopping plugin...");
-        BossBarManager.getRegisteredBars().values().forEach(BossBar::removeAll);
+        BossBarManager.getRegisteredBars().values().forEach(bossbar-> bossbar.removeAll());
     }
 
 
@@ -91,7 +91,9 @@ public final class RozsLib extends JavaPlugin {
             } else {
                 return false;
             }
-        } catch (IOException | ParseException e) {
+        } catch (IOException e) {
+            System.out.println("Error parsing");
+        }catch (ParseException e) {
             System.out.println("Error parsing");
         }
         return false;

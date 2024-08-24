@@ -39,13 +39,15 @@ public class JsonFileBuilder {
 
     public void load() throws IOException {
         JSONParser parser = new JSONParser();
-        try (FileReader reader = new FileReader(new File(path, fileName + ".json"))) {
+        try {
+            FileReader reader = new FileReader(new File(path, fileName + ".json"));
             Object object = parser.parse(reader);
             if (object instanceof JSONObject) {
                 this.object = (JSONObject) object;
             } else {
                 Bukkit.getConsoleSender().sendMessage(ChatColor.RED + "Invalid JSON format in file: " + fileName + ".json");
             }
+            reader.close();
         } catch (ParseException e) {
             throw new RuntimeException(e);
         }

@@ -46,7 +46,8 @@ public class Update {
 
     public void execute(Connection connection) throws SQLException {
         String query = getSqlQuery();
-        try (PreparedStatement statement = connection.prepareStatement(query)) {
+        try {
+            PreparedStatement statement = connection.prepareStatement(query);
             for (int i = 0; i < values.size(); i++) {
                 statement.setObject(i + 1, values.get(i));
             }
@@ -56,6 +57,10 @@ public class Update {
             }
 
             statement.executeUpdate();
+            statement.close();
+        }catch (SQLException e){
+            System.err.println("SQL error: " + e.getMessage());
+            throw e;
         }
     }
 }

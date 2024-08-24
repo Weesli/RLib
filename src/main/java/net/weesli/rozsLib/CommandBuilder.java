@@ -1,7 +1,9 @@
 package net.weesli.rozsLib;
 
 import org.bukkit.command.Command;
+import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.plugin.Plugin;
 import java.util.List;
 
@@ -11,7 +13,7 @@ import java.util.List;
  *
  */
 
-public abstract class CommandBuilder {
+public abstract class CommandBuilder implements CommandExecutor, TabCompleter {
 
     // creating variables
     private Plugin plugin;
@@ -29,9 +31,20 @@ public abstract class CommandBuilder {
     }
 
     // method to build the command, sets the executor and tabCompleter.
-    public void build(){
-        plugin.getServer().getPluginCommand(command).setExecutor(this::Command);
-        plugin.getServer().getPluginCommand(command).setTabCompleter(this::TabComplete);
+    public void build() {
+        plugin.getServer().getPluginCommand(command).setExecutor(this);
+        plugin.getServer().getPluginCommand(command).setTabCompleter(this);
+    }
+
+    @Override
+    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        return Command(sender, command, label, args);
+    }
+
+    // Implementing the TabCompleter interface
+    @Override
+    public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+        return TabComplete(sender, command, alias, args);
     }
 
     protected abstract boolean Command(CommandSender sender, Command command, String s, String[] args);

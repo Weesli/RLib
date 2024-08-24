@@ -29,7 +29,7 @@ public class MySQLBuilder {
     }
 
     public Connection build() {
-        if (connection == null){
+        if (connection == null) {
             Connection connection;
             try {
                 connection = DriverManager.getConnection("jdbc:mysql://" + host + ":" + port, username, password);
@@ -42,11 +42,21 @@ public class MySQLBuilder {
         return connection;
     }
 
-    public void createDatabase(String dbName, Connection connection){
-        try(Statement statement = connection.createStatement()) {
+    public void createDatabase(String dbName, Connection connection) {
+        Statement statement = null;
+        try {
+            statement = connection.createStatement();
             statement.execute("CREATE DATABASE IF NOT EXISTS " + dbName);
         } catch (SQLException e) {
             throw new RuntimeException(e);
+        } finally {
+            if (statement != null) {
+                try {
+                    statement.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 
@@ -90,12 +100,16 @@ public class MySQLBuilder {
 
         sb.append(");");
 
-        try (Statement statement = connection.createStatement()) {
+        Statement statement = null;
+        try {
+            statement = connection.createStatement();
             statement.execute(sb.toString());
+        } finally {
+            if (statement != null) {
+                statement.close();
+            }
         }
     }
-
-
 
     public void insert(Connection connection, Insert value) throws SQLException {
         if (value == null) {
@@ -118,9 +132,20 @@ public class MySQLBuilder {
         value.execute();
     }
 
-    public Result getResult(String sql) throws SQLException{
-        try (Statement statement = connection.createStatement(); ResultSet resultSet = statement.executeQuery(sql)) {
+    public Result getResult(String sql) throws SQLException {
+        Statement statement = null;
+        ResultSet resultSet = null;
+        try {
+            statement = connection.createStatement();
+            resultSet = statement.executeQuery(sql);
             return new Result(resultSet);
+        } finally {
+            if (resultSet != null) {
+                resultSet.close();
+            }
+            if (statement != null) {
+                statement.close();
+            }
         }
     }
 
@@ -138,7 +163,6 @@ public class MySQLBuilder {
         return value.deserialize();
     }
 
-
     public String serialize(ItemStack itemStack) throws IOException {
         ByteArrayOutputStream io = new ByteArrayOutputStream();
         BukkitObjectOutputStream os = new BukkitObjectOutputStream(io);
@@ -148,10 +172,9 @@ public class MySQLBuilder {
         return Base64.getEncoder().encodeToString(serialized);
     }
 
-
     public String serialize(List<ItemStack> itemStacks) {
         List<String> itemList = new ArrayList<>();
-        for (ItemStack itemStack : itemStacks){
+        for (ItemStack itemStack : itemStacks) {
             try {
                 ByteArrayOutputStream io = new ByteArrayOutputStream();
                 BukkitObjectOutputStream os = new BukkitObjectOutputStream(io);
@@ -165,7 +188,4 @@ public class MySQLBuilder {
         }
         return itemList.toString();
     }
-
-
-
 }

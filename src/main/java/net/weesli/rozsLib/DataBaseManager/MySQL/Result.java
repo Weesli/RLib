@@ -6,6 +6,7 @@ import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class Result {
 
@@ -73,7 +74,7 @@ public class Result {
 
     public List<String> getStringList(String path) {
         try {
-            return Arrays.stream(resultset.getString(path).replace("[", "").replace("]", "").split(", ")).toList();
+            return Arrays.stream(resultset.getString(path).replace("[", "").replace("]", "").split(", ")).collect(Collectors.toList());
         }catch (SQLException e){
             throw new RuntimeException(e);
         }
@@ -81,7 +82,7 @@ public class Result {
 
     public List<Integer> getIntList(String path) {
         try {
-            return Arrays.stream(resultset.getString(path).replace("[", "").replace("]", "").split(", ")).mapToInt(Integer::parseInt).boxed().toList();
+            return Arrays.stream(resultset.getString(path).replace("[", "").replace("]", "").split(", ")).mapToInt(Integer::parseInt).boxed().collect(Collectors.toList());
         }catch (SQLException e){
             throw new RuntimeException(e);
         }
@@ -89,7 +90,7 @@ public class Result {
 
     public List<Double> getDoubleList(String path) {
         try {
-            return Arrays.stream(resultset.getString(path).replace("[", "").replace("]", "").split(", ")).mapToDouble(Double::parseDouble).boxed().toList();
+            return Arrays.stream(resultset.getString(path).replace("[", "").replace("]", "").split(", ")).mapToDouble(Double::parseDouble).boxed().collect(Collectors.toList());
         }catch (SQLException e){
             throw new RuntimeException(e);
         }
@@ -97,7 +98,7 @@ public class Result {
 
     public List<Boolean> getBooleanList(String path) {
         try {
-            return Arrays.stream(resultset.getString(path).replace("[", "").replace("]", "").split(", ")).map(Boolean::parseBoolean).toList();
+            return Arrays.stream(resultset.getString(path).replace("[", "").replace("]", "").split(", ")).map(Boolean::parseBoolean).collect(Collectors.toList());
         }catch (SQLException e){
             throw new RuntimeException(e);
         }

@@ -19,7 +19,7 @@ public class DiscordIntegration {
     private String url;
     private String title;
     private String avatar_url;
-    private Map<String, String> varibles = new HashMap<>();
+    private Map<String, String> varibles = new HashMap<String, String>();
 
 
     /**
