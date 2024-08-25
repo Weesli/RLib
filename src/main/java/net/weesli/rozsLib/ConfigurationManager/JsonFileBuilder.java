@@ -2,8 +2,6 @@ package net.weesli.rozsLib.ConfigurationManager;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Material;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -16,7 +14,7 @@ public class JsonFileBuilder {
 
     private Plugin plugin;
     private String fileName;
-    private File path;
+    private String path;
     private JSONObject object;
 
     private boolean isResource;
@@ -24,7 +22,7 @@ public class JsonFileBuilder {
     public JsonFileBuilder(Plugin plugin, String fileName) {
         this.plugin = plugin;
         this.fileName = fileName;
-        path = plugin.getDataFolder();
+        path = plugin.getDataFolder().getPath();
     }
 
     public JsonFileBuilder setResource(boolean isResource){
@@ -32,7 +30,7 @@ public class JsonFileBuilder {
         return this;
     }
 
-    public JsonFileBuilder setFilePath(File path){
+    public JsonFileBuilder setFilePath(String path){
         this.path = path;
         return this;
     }
@@ -55,10 +53,11 @@ public class JsonFileBuilder {
 
     public void create(){
         File file = new File(path, fileName + ".json");
+        File path = new File(this.path);
         if (!file.exists()) {
             try {
                 if (isResource) {
-                    plugin.saveResource(fileName + ".json", false);
+                    plugin.saveResource( path + "/" + fileName + ".json", false);
                     Bukkit.getServer().getConsoleSender().sendMessage("[RLib] Resource file loaded: " + fileName + ".json");
                 } else {
                     if (!path.exists()) {
