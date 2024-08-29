@@ -1,4 +1,4 @@
-package net.weesli.rozsLib.DataBaseManager.MySQL;
+package net.weesli.rozsLib.database.mysql;
 
 public class Column {
 

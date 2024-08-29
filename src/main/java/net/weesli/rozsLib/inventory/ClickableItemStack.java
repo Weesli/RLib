@@ -1,4 +1,4 @@
-package net.weesli.rozsLib.InventoryManager;
+package net.weesli.rozsLib.inventory;
 
 import lombok.Getter;
 import org.bukkit.Bukkit;

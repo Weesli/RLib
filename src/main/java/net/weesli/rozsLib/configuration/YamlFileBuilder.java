@@ -1,4 +1,4 @@
-package net.weesli.rozsLib.ConfigurationManager;
+package net.weesli.rozsLib.configuration;
 
 import me.clip.placeholderapi.PlaceholderAPI;
 import org.bukkit.*;

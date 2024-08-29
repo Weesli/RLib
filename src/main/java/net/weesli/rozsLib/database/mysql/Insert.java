@@ -1,4 +1,4 @@
-package net.weesli.rozsLib.DataBaseManager.MySQL;
+package net.weesli.rozsLib.database.mysql;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

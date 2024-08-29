@@ -1,4 +1,4 @@
-package net.weesli.rozsLib.ColorManager;
+package net.weesli.rozsLib.color;
 
 import net.md_5.bungee.api.ChatColor;
 

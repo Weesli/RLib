@@ -1,6 +1,6 @@
 package net.weesli.rozsLib.example;
 
-import net.weesli.rozsLib.ColorManager.ColorBuilder;
+import net.weesli.rozsLib.color.ColorBuilder;
 import net.weesli.rozsLib.CommandBuilder;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;

@@ -1,4 +1,4 @@
-package net.weesli.rozsLib.DataBaseManager.MySQL;
+package net.weesli.rozsLib.database.mysql;
 
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.io.BukkitObjectInputStream;

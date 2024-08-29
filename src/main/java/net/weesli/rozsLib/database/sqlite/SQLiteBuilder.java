@@ -1,63 +1,51 @@
-package net.weesli.rozsLib.DataBaseManager.MySQL;
+package net.weesli.rozsLib.database.sqlite;
 
+import net.weesli.rozsLib.database.mysql.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.io.BukkitObjectOutputStream;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
-import java.util.Map;
 
-public class MySQLBuilder {
+public class SQLiteBuilder {
 
-    private String host;
-    private int port;
     private String database;
-    private String username;
-    private String password;
+    private String path;
     private Connection connection;
+    private File file;
 
-    public MySQLBuilder(String host, int port, String database, String username, String password) {
-        this.host = host;
-        this.port = port;
+    public SQLiteBuilder(String database) {
         this.database = database;
-        this.username = username;
-        this.password = password;
     }
 
-    public Connection build() {
+    public SQLiteBuilder setPath(String path){
+        this.path = path;
+        file = new File(path + "/" + database + ".db");
+        return this;
+    }
+
+    public Connection build() throws SQLException {
         if (connection == null) {
-            Connection connection;
-            try {
-                connection = DriverManager.getConnection("jdbc:mysql://" + host + ":" + port, username, password);
-                createDatabase(database, connection);
-                return DriverManager.getConnection("jdbc:mysql://" + host + ":" + port + "/" + database, username, password);
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
+            connection = DriverManager.getConnection("jdbc:sqlite:"+getDB());
         }
         return connection;
     }
 
-    public void createDatabase(String dbName, Connection connection) {
-        Statement statement = null;
-        try {
-            statement = connection.createStatement();
-            statement.execute("CREATE DATABASE IF NOT EXISTS " + dbName);
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        } finally {
-            if (statement != null) {
-                try {
-                    statement.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
+    private String getDB() {
+        if (!file.exists()){
+            try {
+                file.createNewFile();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
             }
+
         }
+        return path + "/" + database + ".db";
     }
 
     public void createTable(String tableName, Connection connection, List<Column> columns) throws SQLException {

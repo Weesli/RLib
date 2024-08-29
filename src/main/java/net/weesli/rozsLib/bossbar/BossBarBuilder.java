@@ -1,4 +1,4 @@
-package net.weesli.rozsLib.BossBarManager;
+package net.weesli.rozsLib.bossbar;
 
 import me.clip.placeholderapi.PlaceholderAPI;
 import org.bukkit.Bukkit;

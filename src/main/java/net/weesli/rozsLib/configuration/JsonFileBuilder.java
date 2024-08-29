@@ -1,4 +1,4 @@
-package net.weesli.rozsLib.ConfigurationManager;
+package net.weesli.rozsLib.configuration;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -37,8 +37,8 @@ public class JsonFileBuilder {
 
     public void load() throws IOException {
         JSONParser parser = new JSONParser();
+        FileReader reader = new FileReader(new File(plugin.getDataFolder(), path + "/" + fileName + ".json"));
         try {
-            FileReader reader = new FileReader(new File(path, fileName + ".json"));
             Object object = parser.parse(reader);
             if (object instanceof JSONObject) {
                 this.object = (JSONObject) object;
@@ -82,6 +82,7 @@ public class JsonFileBuilder {
             load();
         } catch (IOException e) {
             Bukkit.getConsoleSender().sendMessage(ChatColor.RED + "Error reading JSON file: " + fileName + ".json");
+            e.printStackTrace();
         }
     }
 

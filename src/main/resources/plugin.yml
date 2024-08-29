@@ -1,5 +1,5 @@
 name: RozsLib
-version: '1.6.1'
+version: '${project.version}'
 main: net.weesli.rozsLib.RozsLib
 api-version: '1.13'
 author: Weesli

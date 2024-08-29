@@ -1,4 +1,4 @@
-package net.weesli.rozsLib.BossBarManager;
+package net.weesli.rozsLib.bossbar;
 
 import lombok.Getter;
 import org.bukkit.boss.BossBar;
