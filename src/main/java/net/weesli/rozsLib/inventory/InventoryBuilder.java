@@ -1,6 +1,7 @@
 package net.weesli.rozsLib.inventory;
 
 import lombok.Getter;
+import lombok.Setter;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
@@ -18,6 +19,9 @@ public class InventoryBuilder {
     private int size;
 
     private final Inventory inventory;
+
+    @Setter
+    @Getter private boolean inventoryClick = false;
 
 
     public InventoryBuilder(Plugin plugin, String title, int size) {

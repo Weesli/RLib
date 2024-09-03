@@ -3,6 +3,7 @@ package net.weesli.rozsLib.database.mysql;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -74,7 +75,7 @@ public class Result {
 
     public List<String> getStringList(String path) {
         try {
-            return Arrays.stream(resultset.getString(path).replace("[", "").replace("]", "").split(", ")).collect(Collectors.toList());
+            return Arrays.stream(resultset.getString(path).replace("[", "").replace("]", "").split(", ")).toList();
         }catch (SQLException e){
             throw new RuntimeException(e);
         }
