@@ -6,6 +6,7 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -42,13 +43,13 @@ public class LibListener implements Listener {
         Player player = e.getPlayer();
         Block block = e.getClickedBlock();
         if (block == null){ return;}
-        if (e.getAction().isLeftClick()){
+        if (e.getAction().equals(Action.LEFT_CLICK_BLOCK)){
             BlockLeftClickEvent event = new BlockLeftClickEvent(player,block);
             Bukkit.getPluginManager().callEvent(event);
             if (event.isCancelled()){
                 e.setCancelled(true);
             }
-        } else if (e.getAction().isRightClick()) {
+        } else if (e.getAction().equals(Action.RIGHT_CLICK_BLOCK)) {
             BlockRightClickEvent event = new BlockRightClickEvent(player, block);
             Bukkit.getPluginManager().callEvent(event);
             if (event.isCancelled()){
