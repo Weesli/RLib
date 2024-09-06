@@ -6,12 +6,14 @@ import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 
 /**
@@ -68,9 +70,16 @@ public class InventoryBuilder implements Listener {
 
     @EventHandler
     public void onInventoryClick(InventoryClickEvent e){
-        if (e.getCurrentItem() == null){return;}
-        if (!e.getView().getTitle().equals(title)){return;}
-        if (isInventoryClick()){
+        if (e.getClickedInventory() == null) {
+            return;
+        }if (e.getClickedInventory().equals(inventory)) {
+            e.setCancelled(true);
+            return;
+        }
+        if (e.getClickedInventory().getType().equals(InventoryType.PLAYER)) {
+            e.setCancelled(true);
+        }
+        if (isInventoryClick()) {
             e.setCancelled(true);
         }
     }
