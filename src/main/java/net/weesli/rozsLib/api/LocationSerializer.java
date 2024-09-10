@@ -17,8 +17,8 @@ public class LocationSerializer implements Serializer<Location> {
                 Double.parseDouble(value.split(":")[1]),
                 Double.parseDouble(value.split(":")[2]),
                 Double.parseDouble(value.split(":")[3]),
-                Float.parseFloat(value.split(":")[4]),
-                Float.parseFloat(value.split(":")[5])
+                Float.parseFloat(value.split(":")[5]),
+                Float.parseFloat(value.split(":")[4])
         );
     }
 }
