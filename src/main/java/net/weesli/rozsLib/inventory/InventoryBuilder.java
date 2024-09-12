@@ -70,17 +70,10 @@ public class InventoryBuilder implements Listener {
 
     @EventHandler
     public void onInventoryClick(InventoryClickEvent e){
-        if (e.getClickedInventory() == null) {
-            return;
-        }if (e.getClickedInventory().equals(inventory)) {
-            e.setCancelled(true);
-            return;
-        }
-        if (e.getClickedInventory().getType().equals(InventoryType.PLAYER)) {
-            e.setCancelled(true);
-        }
-        if (isInventoryClick()) {
-            e.setCancelled(true);
+        if (e.getInventory().equals(inventory)){
+            if (isInventoryClick()){
+                e.setCancelled(true);
+            }
         }
     }
 
