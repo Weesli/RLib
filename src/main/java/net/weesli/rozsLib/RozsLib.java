@@ -1,8 +1,8 @@
 package net.weesli.rozsLib;
 
+import lombok.Getter;
 import net.weesli.rozsLib.bossbar.BossBarManager;
 import net.weesli.rozsLib.events.LibListener;
-import net.weesli.rozsLib.example.RLibCommand;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -21,26 +21,25 @@ public final class RozsLib extends JavaPlugin {
 
     private static final String GITHUB_API_URL = "https://api.github.com/repos/Weesli/RLib/releases";
 
+    @Getter private static RozsLib instance;
 
     @Override
     public void onEnable() {
+        instance = this;
         Bukkit.getConsoleSender().sendMessage("[RLib] Starting plugin...");
 
         // check lib version
-        if (!checkVersion()) {
-            Bukkit.getConsoleSender().sendMessage(ChatColor.RED + "[RLib] A new version of RLib is available. Please update!");
-        }else {
-            Bukkit.getConsoleSender().sendMessage(ChatColor.GREEN + "[RLib] You are using the latest version of RLib.");
-        }
+        Bukkit.getScheduler().runTask(this, ()-> {
+            if (!checkVersion()) {
+                Bukkit.getConsoleSender().sendMessage(ChatColor.RED + "[RLib] A new version of RLib is available. Please update!");
+            }else {
+                Bukkit.getConsoleSender().sendMessage(ChatColor.GREEN + "[RLib] You are using the latest version of RLib.");
+            }
+        });
 
         // register lib events
 
         this.getServer().getPluginManager().registerEvents(new LibListener(), this);
-
-        /**
-         * Command register like this
-         */
-        new RLibCommand(this).setCommand("RLib").build();
 
     }
 
