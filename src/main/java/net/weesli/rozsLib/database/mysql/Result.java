@@ -1,12 +1,14 @@
 package net.weesli.rozsLib.database.mysql;
 
 
+import net.weesli.rozsLib.api.ItemSerializer;
+import net.weesli.rozsLib.api.LocationSerializer;
+import org.bukkit.Location;
+import org.bukkit.inventory.ItemStack;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class Result {
@@ -73,6 +75,14 @@ public class Result {
         }
     }
 
+    public UUID getUUID(String path){
+        try {
+            return UUID.fromString(resultset.getString(path));
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public List<String> getStringList(String path) {
         try {
             return Arrays.stream(resultset.getString(path).replace("[", "").replace("]", "").split(", ")).toList();
@@ -105,12 +115,41 @@ public class Result {
         }
     }
 
+    public List<UUID> getUUIDList(String path) {
+        try {
+            return Arrays.stream(resultset.getString(path).replace("[", "").replace("]", "").split(", ")).map(UUID::fromString).collect(Collectors.toList());
+        }catch (SQLException e){
+            throw new RuntimeException(e);
+        }
+    }
+
     public Map getMap(String path){
         try {
             return resultset.getObject(path, Map.class);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+    }
+
+
+    // serializers
+
+    public Location getLocation(String path){
+        return new LocationSerializer().deserialize(path);
+    }
+
+    public ItemStack getItemStack(String path){
+        return new ItemSerializer().deserialize(path);
+    }
+
+    public List<Location> getLocationList(String path) throws SQLException {
+        LocationSerializer serializer = new LocationSerializer();
+        return Arrays.stream(resultset.getString(path).replace("[", "").replace("]", "").split(", ")).map(serializer::deserialize).collect(Collectors.toList());
+    }
+
+    public List<ItemStack> getItemStackList(String path) throws SQLException {
+        ItemSerializer serializer = new ItemSerializer();
+        return Arrays.stream(resultset.getString(path).replace("[", "").replace("]", "").split(", ")).map(serializer::deserialize).collect(Collectors.toList());
     }
 
 }
