@@ -9,6 +9,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
@@ -25,6 +26,7 @@ public class InventoryBuilder implements Listener {
     private Inventory inventory;
 
     private Map<ClickableItemStack, Consumer<InventoryClickEvent>> events = new HashMap<>();
+    private Consumer<InventoryCloseEvent> closeEvent;
 
 
     public InventoryBuilder() {
@@ -38,6 +40,11 @@ public class InventoryBuilder implements Listener {
 
     public InventoryBuilder size(int size) {
         this.size = size;
+        return this;
+    }
+
+    public InventoryBuilder close(Consumer<InventoryCloseEvent> event) {
+        this.closeEvent = event;
         return this;
     }
 
@@ -112,4 +119,11 @@ public class InventoryBuilder implements Listener {
         });
     }
 
+    @EventHandler
+    public void handleClose(InventoryCloseEvent e){
+        if (!e.getInventory().equals(getInventory())){return;}
+        if (closeEvent != null) {
+            closeEvent.accept(e);
+        }
+    }
 }
