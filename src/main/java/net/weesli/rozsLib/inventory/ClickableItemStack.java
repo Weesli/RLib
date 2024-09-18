@@ -62,7 +62,7 @@ public class ClickableItemStack implements Listener {
         if (!e.getClickedInventory().equals(inventory)){return;}
         if (e.getCurrentItem().isSimilar(itemStack)){
             if (isClickSound()){
-                e.getWhoClicked().getWorld().playSound(e.getWhoClicked().getLocation(), getSound(), 3,1);
+                e.getWhoClicked().getWorld().playSound(e.getWhoClicked(), getSound(), 3,1);
             }
             event.onClick(e);
             e.setCancelled(isCancelled());
