@@ -3,6 +3,7 @@ package net.weesli.rozsLib.inventory;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -62,7 +63,8 @@ public class ClickableItemStack implements Listener {
         if (!e.getClickedInventory().equals(inventory)){return;}
         if (e.getCurrentItem().isSimilar(itemStack)){
             if (isClickSound()){
-                e.getWhoClicked().getWorld().playSound(e.getWhoClicked(), getSound(), 3,1);
+                Player player = (Player) e.getWhoClicked();
+                player.playSound(player,getSound(),3,1);
             }
             event.onClick(e);
             e.setCancelled(isCancelled());
