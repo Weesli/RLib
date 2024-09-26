@@ -116,11 +116,14 @@ public class Result {
     }
 
     public List<UUID> getUUIDList(String path) {
-        try {
-            return Arrays.stream(resultset.getString(path).replace("[", "").replace("]", "").split(", ")).map(UUID::fromString).collect(Collectors.toList());
-        }catch (SQLException e){
-            throw new RuntimeException(e);
-        }
+        return getStringList(path).stream().filter(key -> {
+            try {
+                UUID.fromString(key);
+                return true;
+            } catch (IllegalArgumentException ex) {
+                return false;
+            }
+        }).map(UUID::fromString).toList();
     }
 
     public Map getMap(String path){
