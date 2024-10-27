@@ -1,5 +1,7 @@
 package net.weesli.rozsLib.configuration;
 
+import lombok.Getter;
+import lombok.Setter;
 import me.clip.placeholderapi.PlaceholderAPI;
 import org.bukkit.*;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -12,7 +14,7 @@ import org.bukkit.plugin.Plugin;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
-
+@Getter@Setter
 public class YamlFileBuilder {
 
     private Plugin plugin;
@@ -66,19 +68,11 @@ public class YamlFileBuilder {
             try {
                 if (isResource) {
                     plugin.saveResource(fileName + ".yml", false);
-                    Bukkit.getServer().getConsoleSender().sendMessage("[RLib] Resource file loaded: " + fileName + ".yml");
                 } else {
                     if (!path.exists()) {
-                        if (path.mkdirs()) {
-                            Bukkit.getServer().getConsoleSender().sendMessage("[RLib] Directory created: " + path.getAbsolutePath());
-                        } else {
-                            Bukkit.getServer().getConsoleSender().sendMessage("[RLib] Error: Failed to create directory: " + path.getAbsolutePath());
-                            return;
-                        }
+                        path.mkdirs();
                     }
-                    if (file.createNewFile()) {
-                        Bukkit.getServer().getConsoleSender().sendMessage("[RLib] File created successfully: " + fileName + ".yml");
-                    } else {
+                    if (!file.createNewFile()) {
                         Bukkit.getServer().getConsoleSender().sendMessage("[RLib] Error: File already exists or failed to create: " + fileName + ".yml");
                     }
                 }
@@ -99,7 +93,6 @@ public class YamlFileBuilder {
                     }
                 }
                 save();
-                Bukkit.getServer().getConsoleSender().sendMessage("[RLib] Config updated with defaults: " + fileName + ".yml");
             }
         }
     }
@@ -109,11 +102,6 @@ public class YamlFileBuilder {
         File newfile = new File(path, fileName + ".yml");
         configuration = YamlConfiguration.loadConfiguration(newfile);
     }
-
-    public String getFileName(){
-        return fileName;
-    }
-
     public boolean isResource() {
         return isResource;
     }

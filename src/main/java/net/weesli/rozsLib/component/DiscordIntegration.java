@@ -1,4 +1,4 @@
-package net.weesli.rozsLib.api;
+package net.weesli.rozsLib.component;
 
 import lombok.Getter;
 import org.json.simple.JSONArray;

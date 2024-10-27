@@ -1,5 +1,7 @@
 package net.weesli.rozsLib.bossbar;
 
+import lombok.Getter;
+import lombok.Setter;
 import me.clip.placeholderapi.PlaceholderAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.boss.BarColor;
@@ -15,7 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
-
+@Getter@Setter
 public class BossBarBuilder implements Listener {
 
     private int TaskID = 0;
@@ -121,38 +123,6 @@ public class BossBarBuilder implements Listener {
 
     private void cancelTask() {
         Bukkit.getScheduler().cancelTask(TaskID);
-    }
-
-    public Plugin getPlugin() {
-        return plugin;
-    }
-
-    public String getText() {
-        return text;
-    }
-
-    public BarStyle getStyle() {
-        return style;
-    }
-
-    public BarFlag getFlag() {
-        return flag;
-    }
-
-    public BarColor getColor() {
-        return color;
-    }
-
-    public int getRefreshTime() {
-        return refreshTime;
-    }
-
-    public BossBarModal getBossBarModal() {
-        return bossBarModal;
-    }
-
-    public int getTime() {
-        return time;
     }
 
 }

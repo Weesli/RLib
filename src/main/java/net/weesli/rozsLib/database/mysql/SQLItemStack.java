@@ -12,7 +12,7 @@ import java.sql.SQLException;
 import java.util.Base64;
 import java.util.Map;
 import java.util.stream.Collectors;
-
+@Deprecated
 public class SQLItemStack {
 
     private String tableName;

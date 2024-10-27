@@ -20,6 +20,7 @@ import java.util.Objects;
  * A builder for creating custom inventories.
  *
  */
+@Deprecated
 public class InventoryBuilder implements Listener {
 
     @Getter

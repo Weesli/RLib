@@ -2,7 +2,7 @@ package net.weesli.rozsLib.inventory.lasest;
 
 import lombok.Getter;
 import lombok.Setter;
-import net.weesli.rozsLib.RozsLib;
+import net.weesli.rozsLib.RozsLibService;
 import net.weesli.rozsLib.color.ColorBuilder;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -30,7 +30,7 @@ public class InventoryBuilder implements Listener {
 
 
     public InventoryBuilder() {
-        Bukkit.getPluginManager().registerEvents(this, RozsLib.getInstance());
+        Bukkit.getPluginManager().registerEvents(this, RozsLibService.getPlugin());
     }
 
     public InventoryBuilder title(String title) {

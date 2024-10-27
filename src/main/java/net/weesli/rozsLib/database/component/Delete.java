@@ -1,12 +1,13 @@
-package net.weesli.rozsLib.database.mysql;
+package net.weesli.rozsLib.database.component;
+
+import lombok.SneakyThrows;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.util.Map;
 import java.util.stream.Collectors;
-@Deprecated
-public class Delete {
+
+public class Delete implements SQLComponent{
 
     private Connection connection;
     private String table;
@@ -18,7 +19,8 @@ public class Delete {
         this.connection = connection;
     }
 
-    public String getSqlQuery() {
+    @Override
+    public String getSQL() {
         String whereClause = where.keySet().stream()
                 .map(s -> s + " = ?")
                 .collect(Collectors.joining(" AND "));
@@ -26,9 +28,10 @@ public class Delete {
         return "DELETE FROM " + table + " WHERE " + whereClause + ";";
     }
 
-    public void execute() throws SQLException {
-        try (PreparedStatement statement = connection.prepareStatement(getSqlQuery())) {
-
+    @SneakyThrows
+    @Override
+    public void execute() {
+        try (PreparedStatement statement = connection.prepareStatement(getSQL())) {
             int index = 1;
             for (String value : where.values()) {
                 statement.setString(index++, value);
@@ -37,6 +40,5 @@ public class Delete {
             statement.executeUpdate();
         }
     }
-
 
 }

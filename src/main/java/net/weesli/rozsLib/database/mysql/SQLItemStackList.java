@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
-
+@Deprecated
 public class SQLItemStackList {
 
     private Connection connection;

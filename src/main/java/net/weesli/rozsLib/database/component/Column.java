@@ -1,7 +1,10 @@
-package net.weesli.rozsLib.database.mysql;
-@Deprecated
-public class Column {
+package net.weesli.rozsLib.database.component;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter@Setter
+public class Column {
 
     private String name;
     private String type;
@@ -24,27 +27,6 @@ public class Column {
     public Column setAutoIncrement(boolean autoIncrement) {
         this.autoIncrement = autoIncrement;
         return this;
-    }
-
-
-    public String getName() {
-        return name;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public int getLength() {
-        return length;
-    }
-
-    public boolean isPrimary() {
-        return isPrimary;
-    }
-
-    public boolean isAutoIncrement() {
-        return autoIncrement;
     }
 
 

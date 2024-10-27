@@ -16,7 +16,7 @@ import org.bukkit.plugin.Plugin;
  * Author {@Weesli}
  * Clickable item for InventoryBuilder
  */
-
+@Deprecated
 public class ClickableItemStack implements Listener {
 
     @Getter

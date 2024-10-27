@@ -9,7 +9,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
-
+@Deprecated
 public class MySQLBuilder {
 
     private String host;
@@ -18,7 +18,6 @@ public class MySQLBuilder {
     private String username;
     private String password;
     private Connection connection;
-
     public MySQLBuilder(String host, int port, String database, String username, String password) {
         this.host = host;
         this.port = port;
