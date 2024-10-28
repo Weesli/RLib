@@ -1,0 +1,4 @@
+name: RozsLib
+version: ${project.version}
+author: [ Weesli ]
+main: net.weesli.rozslib.RozsLib
