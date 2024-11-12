@@ -2,7 +2,6 @@ package net.weesli.rozsLib.inventory.lasest;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.inventory.ItemStack;
 @Getter@Setter

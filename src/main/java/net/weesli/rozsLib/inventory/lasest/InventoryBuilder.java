@@ -109,7 +109,7 @@ public class InventoryBuilder implements Listener {
         if (!clickable){
             e.setCancelled(true);
         }
-        Optional<ClickableItemStack> event = events.keySet().stream().filter(item -> item.getItemStack().isSimilar(e.getCurrentItem())).findFirst();
+        Optional<ClickableItemStack> event = events.keySet().stream().filter(item -> item.getSlot() == e.getSlot()).findFirst();
         event.ifPresent(clickableItemStack -> {
             if (!clickableItemStack.isClickable()){
                 e.setCancelled(true);
