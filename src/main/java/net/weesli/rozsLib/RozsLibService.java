@@ -6,20 +6,18 @@ import org.bukkit.plugin.Plugin;
 import java.util.logging.Level;
 
 @Getter
-public final class RozsLib {
+public class RozsLibService {
 
-    private static final String GITHUB_API_URL = "https://api.github.com/repos/Weesli/RLib/releases";
+    @Getter private static Plugin plugin;
 
-    private final Plugin plugin;
-
-    private RozsLib(Plugin plugin){
-        this.plugin = plugin;
+    private RozsLibService(Plugin plugin){
+        RozsLibService.plugin = plugin;
         plugin.getLogger().log(Level.INFO, "Starting RozsLibService...");
         plugin.getServer().getPluginManager().registerEvents(new LibListener(), plugin);
     }
 
     public static void start(Plugin plugin){
-        new RozsLib(plugin);
+        new RozsLibService(plugin);
     }
 
 }
