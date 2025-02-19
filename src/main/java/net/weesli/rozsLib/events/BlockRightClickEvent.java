@@ -1,12 +1,14 @@
 package net.weesli.rozsLib.events;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
-
+@Getter@Setter
 public class BlockRightClickEvent extends Event implements Cancellable {
 
     private static final HandlerList handlers = new HandlerList();
@@ -30,14 +32,6 @@ public class BlockRightClickEvent extends Event implements Cancellable {
     @Override
     public void setCancelled(boolean cancel) {
         cancelled = cancel;
-    }
-
-    public Player getPlayer() {
-        return player;
-    }
-
-    public Block getClickedBlock() {
-        return clickedBlock;
     }
 
     @Override

@@ -1,13 +1,14 @@
 package net.weesli.rozsLib.events;
 
-import org.bukkit.damage.DamageSource;
-import org.bukkit.entity.Entity;
+import lombok.Getter;
+import lombok.Setter;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 
+@Getter@Setter
 public class PlayerDamageEvent extends Event implements Cancellable {
 
     private static final HandlerList handlers = new HandlerList();
@@ -38,14 +39,6 @@ public class PlayerDamageEvent extends Event implements Cancellable {
 
     public static HandlerList getHandlerList() {
         return handlers;
-    }
-
-    public Player getPlayer() {
-        return player;
-    }
-
-    public double getDamage() {
-        return damage;
     }
 
 }
