@@ -1,15 +1,18 @@
 package net.weesli.rozsLib.database;
 
 import lombok.Getter;
+import lombok.SneakyThrows;
+
 import java.sql.*;
 import java.util.List;
-
 @Getter
 public class Database {
 
-    private final Connection connection;
+    private ConnectionInfo info;
+    private Connection connection;
 
     public Database(ConnectionInfo info){
+        this.info = info;
         this.connection = DatabaseFactory.createConnection(info);
     }
 
@@ -38,5 +41,14 @@ public class Database {
         } catch (Exception e){
             throw new RuntimeException("Error executing prepared statement: " + sql, e);
         }
+    }
+
+
+    @SneakyThrows
+    public Connection getConnection() {
+        if (connection == null || connection.isClosed()){
+            return this.connection = DatabaseFactory.createConnection(info);
+        }
+        return connection;
     }
 }
