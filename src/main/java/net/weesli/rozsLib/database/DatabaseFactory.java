@@ -19,23 +19,22 @@ public class DatabaseFactory {
         }catch (SQLSyntaxErrorException e){
             if (e.getMessage().contains("Unknown database")){
                 if (info.getType().equals(DatabaseType.MySQL)){
-                    URI uri = new URI(info.getUrl().replace("mysql://", "http://"));
-                    String dbName = uri.getPath().substring(1);
                     try (Connection conn = DriverManager.getConnection(info.getUrl())) {
                         String checkDbQuery = "SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = ?";
                         try (PreparedStatement stmt = conn.prepareStatement(checkDbQuery)) {
-                            stmt.setString(1, dbName);
+                            stmt.setString(1, info.getDbName());
                             ResultSet rs = stmt.executeQuery();
 
                             if (!rs.next()) {
-                                String createDbQuery = "CREATE DATABASE " + dbName;
+                                String createDbQuery = "CREATE DATABASE " + info.getDbName();
                                 try (Statement stmtCreate = conn.createStatement()) {
                                     stmtCreate.executeUpdate(createDbQuery);
-                                    System.out.println("Database created: " + dbName);
+                                    System.out.println("Database created: " + info.getDbName());
                                 }
                             }
                         }
                     }
+                    return DriverManager.getConnection(info.getUrl(), info.getUsername(), info.getPassword());
                 }
             }
         }
