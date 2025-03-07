@@ -8,6 +8,7 @@ import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
+
 @Getter@Setter
 public class BlockLeftClickEvent extends Event implements Cancellable {
 

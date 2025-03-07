@@ -4,7 +4,6 @@ import lombok.Getter;
 import lombok.SneakyThrows;
 import net.weesli.rozsLib.enums.DatabaseType;
 
-import java.net.URI;
 import java.sql.*;
 import java.util.List;
 @Getter
