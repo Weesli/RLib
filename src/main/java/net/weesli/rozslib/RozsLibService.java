@@ -1,10 +1,6 @@
 package net.weesli.rozslib;
 
-import com.github.retrooper.packetevents.PacketEvents;
-import io.github.retrooper.packetevents.factory.spigot.SpigotPacketEventsBuilder;
 import lombok.Getter;
-import me.tofaa.entitylib.APIConfig;
-import me.tofaa.entitylib.EntityLib;
 import net.weesli.rozslib.events.LibListener;
 import org.bukkit.plugin.Plugin;
 import java.util.logging.Level;
