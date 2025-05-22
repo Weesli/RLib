@@ -47,7 +47,7 @@ public class SpigotPack extends SerializerPack {
         }
 
         @Override
-        public boolean isType(Class<?> clazz) {
+        public boolean canSerialize(Class<?> clazz) {
             return Location.class.isAssignableFrom(clazz);
         }
     }
@@ -79,7 +79,7 @@ public class SpigotPack extends SerializerPack {
         }
 
         @Override
-        public boolean isType(Class<?> clazz) {
+        public boolean canSerialize(Class<?> clazz) {
             return ItemStack.class.isAssignableFrom(clazz);
         }
     }
@@ -100,7 +100,7 @@ public class SpigotPack extends SerializerPack {
         }
 
         @Override
-        public boolean isType(Class<?> clazz) {
+        public boolean canSerialize(Class<?> clazz) {
             return UUID.class.isAssignableFrom(clazz);
         }
     }
