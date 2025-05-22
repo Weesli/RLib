@@ -1,4 +1,4 @@
-package net.weesli.rozsLib.inventory;
+package net.weesli.rozslib.inventory;
 
 import lombok.Getter;
 import lombok.Setter;

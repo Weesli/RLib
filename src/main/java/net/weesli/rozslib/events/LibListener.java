@@ -1,4 +1,4 @@
-package net.weesli.rozsLib.events;
+package net.weesli.rozslib.events;
 
 import org.bukkit.Bukkit;
 import org.bukkit.block.Block;

@@ -1,10 +1,10 @@
-package net.weesli.rozsLib.database;
+package net.weesli.rozslib.database;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import lombok.Getter;
 import lombok.Setter;
-import net.weesli.rozsLib.enums.DatabaseType;
+import net.weesli.rozslib.enums.DatabaseType;
 @Getter@Setter
 public class ConnectionInfo {
     

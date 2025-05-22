@@ -1,30 +1,32 @@
-package net.weesli.rozsLib.events;
+package net.weesli.rozslib.events;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
-
 @Getter@Setter
-public class PlayerDamageEvent extends Event implements Cancellable {
+public class BlockRightClickEvent extends Event implements Cancellable {
 
     private static final HandlerList handlers = new HandlerList();
-    private boolean cancelled;
 
     private Player player;
-    private double damage;
+    private Block clickedBlock;
 
-    public PlayerDamageEvent(Player player, double damage) {
+    public BlockRightClickEvent(Player player, Block clickedBlock) {
         this.player = player;
-        this.damage = damage;
+        this.clickedBlock = clickedBlock;
     }
+
+    private boolean cancelled;
+
 
     @Override
     public boolean isCancelled() {
-        return false;
+        return cancelled;
     }
 
     @Override

@@ -1,4 +1,4 @@
-package net.weesli.rozsLib.enums;
+package net.weesli.rozslib.enums;
 
 public enum DatabaseType {
     SQLite,MySQL

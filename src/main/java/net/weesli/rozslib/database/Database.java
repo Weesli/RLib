@@ -1,11 +1,11 @@
-package net.weesli.rozsLib.database;
+package net.weesli.rozslib.database;
 
 import lombok.Getter;
 import lombok.SneakyThrows;
-import net.weesli.rozsLib.enums.DatabaseType;
+import net.weesli.rozslib.enums.DatabaseType;
 
 import java.sql.*;
-import java.util.List;
+
 @Getter
 public class Database {
 
@@ -31,6 +31,11 @@ public class Database {
                 }
             }
             this.connection = DriverManager.getConnection(info.getUrl() + info.getDbName(), info.getUsername(), info.getPassword());
+        }else if (info.getType().equals(DatabaseType.SQLite)){
+            // use timeout
+            try (Statement stmt = connection.createStatement()){
+                stmt.execute("PRAGMA busy_timeout = 10000");
+            }
         }
     }
 
@@ -41,26 +46,6 @@ public class Database {
             throw new RuntimeException("Error closing database connection", e);
         }
     }
-
-    public void executeStatement(String sql){
-        try (PreparedStatement statement = connection.prepareStatement(sql)){
-            statement.execute();
-        } catch (Exception e){
-            throw new RuntimeException("Error executing statement: " + sql, e);
-        }
-    }
-
-    public void executePreparedStatement(String sql, List<Object> values){
-        try (PreparedStatement statement = connection.prepareStatement(sql)){
-            for (int i = 0; i < values.size(); i++){
-                statement.setObject(i+1, values.get(i));
-            }
-            statement.execute();
-        } catch (Exception e){
-            throw new RuntimeException("Error executing prepared statement: " + sql, e);
-        }
-    }
-
 
     @SneakyThrows
     public Connection getConnection() {

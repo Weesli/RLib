@@ -1,7 +1,7 @@
-package net.weesli.rozsLib.database;
+package net.weesli.rozslib.database;
 
 import lombok.SneakyThrows;
-import net.weesli.rozsLib.enums.DatabaseType;
+import net.weesli.rozslib.enums.DatabaseType;
 
 import java.sql.*;
 
