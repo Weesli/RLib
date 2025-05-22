@@ -21,16 +21,6 @@ public class RozsLibService {
         plugin.getLogger().log(Level.INFO, "Starting RozsLibService...");
         plugin.getServer().getPluginManager().registerEvents(new LibListener(), plugin);
         logger = plugin.getLogger();
-        PacketEvents.setAPI(SpigotPacketEventsBuilder.build(plugin));
-        PacketEvents.getAPI().load();
-        SpigotEntityLibPlatform platform = new SpigotEntityLibPlatform(this);
-        APIConfig settings = new APIConfig(PacketEvents.getAPI())
-                .debugMode()
-                .tickTickables()
-                .trackPlatformEntities()
-                .usePlatformLogger();
-        PacketEvents.getAPI().init();
-        EntityLib.init(SpigotEn);
     }
 
     public static void start(Plugin plugin){
