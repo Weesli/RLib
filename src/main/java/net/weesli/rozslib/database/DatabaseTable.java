@@ -1,6 +1,5 @@
 package net.weesli.rozslib.database;
 
-import lombok.SneakyThrows;
 import net.weesli.rozslib.database.annotation.PrimaryKey;
 import net.weesli.rozslib.database.serializer.ObjectSerializer;
 import net.weesli.rozslib.database.serializer.SerializerPack;
@@ -8,31 +7,74 @@ import net.weesli.rozslib.database.serializer.SerializerPack;
 import java.lang.reflect.*;
 import java.sql.*;
 import java.util.*;
+import java.util.concurrent.Executors;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 /**
- *
  * Advanced SQL based object database system
  * Record and manage data with Classroom.
  * CustomObject, Map, Set, List, Enum supported
+ * Improved with transaction handling, boolean support,
+ * safer query, logging and generic type handling.
  * @author Weesli
  * @since 03.15.2025
  */
 public class DatabaseTable {
+
+    private static final Logger LOGGER = Logger.getLogger(DatabaseTable.class.getName());
+
     private final Connection connection;
     private final String tableName;
     private final List<SerializerPack> packs = new ArrayList<>();
 
-    @SneakyThrows
+    public interface DatabaseDialect {
+        String getSqlType(Class<?> javaType);
+        String getDefaultValue(Class<?> javaType);
+        boolean supportsBoolean();
+    }
+
+    private final DatabaseDialect dialect;
+
     public DatabaseTable(String tableName, Connection connection) {
+        this(tableName, connection, new SQLiteDialect());
+    }
+
+    public DatabaseTable(String tableName, Connection connection, DatabaseDialect dialect) {
         this.connection = connection;
         this.tableName = tableName;
-        connection.setAutoCommit(false);connection.setNetworkTimeout(null, 10000);
+        this.dialect = dialect;
+        try {
+            connection.setAutoCommit(false);
+            connection.setNetworkTimeout(Executors.newSingleThreadExecutor(), 10000);
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to initialize connection settings", e);
+        }
     }
 
     public DatabaseTable addPack(SerializerPack pack) {
         packs.add(pack);
         return this;
+    }
+
+    private void runInTransaction(SQLRunnable runnable) {
+        try {
+            runnable.run();
+            connection.commit();
+        } catch (Exception e) {
+            try {
+                connection.rollback();
+            } catch (SQLException ex) {
+                LOGGER.log(Level.SEVERE, "Rollback failed", ex);
+            }
+            throw new RuntimeException("Transaction failed", e);
+        }
+    }
+
+    @FunctionalInterface
+    private interface SQLRunnable {
+        void run() throws Exception;
     }
 
     public void createTable(Object obj) {
@@ -53,20 +95,18 @@ public class DatabaseTable {
 
     private void createTableIfNotExists(Class<?> clazz) {
         String sql = "CREATE TABLE IF NOT EXISTS " + tableName + " (" +
-                Arrays.stream(clazz.getDeclaredFields())
-                        .map(this::getColumnDefinition)
-                        .collect(Collectors.joining(", ")) +
+                getAllFields(clazz).stream().map(field -> getColumnDefinition(field) + ", ").collect(Collectors.joining()) +
                 ");";
         executeUpdate(sql);
     }
 
     private void addMissingColumns(Object obj) {
         Set<String> existingColumns = getExistingColumns();
-        Arrays.stream(obj.getClass().getDeclaredFields())
+        getAllFields(obj.getClass()).stream()
                 .filter(field -> !existingColumns.contains(field.getName()))
-                .map(this::getAlterColumnDefinition)
-                .forEach(this::executeUpdate);
+                .forEach(field -> executeUpdate(getAlterColumnDefinition(field)));
     }
+
 
     private Set<String> getExistingColumns() {
         try (ResultSet columns = connection.getMetaData().getColumns(null, null, tableName, null)) {
@@ -80,9 +120,8 @@ public class DatabaseTable {
         }
     }
 
-
     private String getColumnDefinition(Field field) {
-        StringBuilder definition = new StringBuilder(field.getName() + " " + getSqlType(field.getType()));
+        StringBuilder definition = new StringBuilder(field.getName() + " " + dialect.getSqlType(field.getType()));
         if (field.isAnnotationPresent(PrimaryKey.class)) {
             definition.append(" PRIMARY KEY");
         }
@@ -90,64 +129,55 @@ public class DatabaseTable {
     }
 
     private String getAlterColumnDefinition(Field field) {
-        return "ALTER TABLE " + tableName + " ADD COLUMN " + getColumnDefinition(field) + " DEFAULT " + getDefaultValueForType(field);
-    }
-
-    private String getDefaultValueForType(Field field) {
-        if (field.getType().equals(int.class)) return "0";
-        if (field.getType().equals(String.class)) return "''";
-        if (Collection.class.isAssignableFrom(field.getType())) return "'[]'";
-        return "NULL";
-    }
-
-    private String getSqlType(Class<?> type) {
-        if (type == int.class || type == Integer.class || type == double.class || type == Double.class || type == long.class || type == Long.class) {
-            return "INTEGER";
-        } else if (type == float.class || type == Float.class) {
-            return "REAL";
-        } else {
-            return "TEXT";
-        }
+        return "ALTER TABLE " + tableName + " ADD COLUMN " + getColumnDefinition(field) + " DEFAULT " + dialect.getDefaultValue(field.getType());
     }
 
     public void insert(Object obj) {
-        executePreparedUpdate("INSERT INTO " + tableName + " (" + getColumns(obj) + ") VALUES (" + getPlaceholders(obj) + ")", obj);
+        String sql = "INSERT INTO " + tableName + " (" + getColumns(obj) + ") VALUES (" + getPlaceholders(obj) + ")";
+        runInTransaction(() -> executePreparedUpdate(sql, obj));
     }
 
     public void update(Object obj) {
-        executePreparedUpdate("UPDATE " + tableName + " SET " + getSetClause(obj) + " WHERE " + getPrimaryKeyWhereClause(obj), obj);
+        String sql = "UPDATE " + tableName + " SET " + getSetClause(obj) + " WHERE " + getPrimaryKeyWhereClause(obj);
+        runInTransaction(() -> executePreparedUpdate(sql, obj));
     }
 
-    public void delete(Object obj) throws IllegalAccessException {
+    public void delete(Object obj) {
         String deleteSQL = "DELETE FROM " + tableName + " WHERE " + getPrimaryKeyWhereClause(obj);
-        Object value = getPrimaryKeyValue(obj);
-        try(PreparedStatement statement = connection.prepareStatement(deleteSQL)) {
-            statement.setObject(1, value);
-            statement.executeUpdate();
-            connection.commit();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+        try {
+            Object value = getPrimaryKeyValue(obj);
+            runInTransaction(() -> {
+                try (PreparedStatement statement = connection.prepareStatement(deleteSQL)) {
+                    statement.setObject(1, value);
+                    statement.executeUpdate();
+                }
+            });
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException("Primary key access failed", e);
         }
     }
 
     private String getColumns(Object obj) {
-        return Arrays.stream(obj.getClass().getDeclaredFields()).map(Field::getName).collect(Collectors.joining(", "));
+        return getAllFields(obj).stream().map(Field::getName).collect(Collectors.joining(", "));
     }
 
     private String getPlaceholders(Object obj) {
-        return Arrays.stream(obj.getClass().getDeclaredFields()).map(field -> "?").collect(Collectors.joining(", "));
+        return getAllFields(obj).stream().map(f -> "?").collect(Collectors.joining(", "));
     }
 
     private String getSetClause(Object obj) {
-        String primaryKey = getPrimaryKeyField(obj.getClass().getDeclaredFields());
-        return Arrays.stream(obj.getClass().getDeclaredFields())
+        String primaryKey = getPrimaryKeyField(getAllFields(obj).toArray(new Field[0]));
+        return getAllFields(obj).stream()
                 .filter(field -> !field.getName().equals(primaryKey))
                 .map(field -> field.getName() + " = ?")
                 .collect(Collectors.joining(", "));
     }
 
     private String getPrimaryKeyWhereClause(Object obj) {
-        String primaryKey = getPrimaryKeyField(obj.getClass().getDeclaredFields());
+        String primaryKey = getPrimaryKeyField(getAllFields(obj).toArray(new Field[0]));
+        if (primaryKey == null) {
+            throw new RuntimeException("No primary key defined on class " + obj.getClass().getName());
+        }
         return primaryKey + " = ?";
     }
 
@@ -162,6 +192,9 @@ public class DatabaseTable {
     private Object getPrimaryKeyValue(Object obj) throws IllegalAccessException {
         Field[] fields = obj.getClass().getDeclaredFields();
         String primaryKeyField = getPrimaryKeyField(fields);
+        if (primaryKeyField == null) {
+            throw new RuntimeException("Primary key field not found");
+        }
         for (Field field : fields) {
             if (field.getName().equals(primaryKeyField)) {
                 field.setAccessible(true);
@@ -175,13 +208,7 @@ public class DatabaseTable {
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
             setStatementParameters(statement, obj);
             statement.executeUpdate();
-            connection.commit();
         } catch (SQLException | IllegalAccessException e) {
-            try {
-                connection.rollback();
-            } catch (SQLException ex) {
-                throw new RuntimeException(ex);
-            }
             throw new RuntimeException("Error executing prepared statement: " + sql, e);
         }
     }
@@ -189,171 +216,188 @@ public class DatabaseTable {
     private void setStatementParameters(PreparedStatement statement, Object obj) throws SQLException, IllegalAccessException {
         List<Field> fields = getAllFields(obj);
         String primaryKey = getPrimaryKeyField(fields.toArray(new Field[0]));
-        int parameterIndex = 1;
+
+        int paramIndex = 1;
         for (Field field : fields) {
             field.setAccessible(true);
-            Object value = serializeFieldValue(field.get(obj), field);
-            if (primaryKey != null && sqlContainsPrimaryKey(statement.toString(), field.getName())) {
-                statement.setObject(fields.size(), value);
-            } else {
-                statement.setObject(parameterIndex++, value);
+            if (primaryKey != null && statement.toString().contains("WHERE " + primaryKey + " = ?") && field.getName().equals(primaryKey)) {
+                continue;
             }
+            Object value = serializeFieldValue(field.get(obj), field);
+            statement.setObject(paramIndex++, value);
+        }
+        if (primaryKey !=null && statement.toString().contains("WHERE " + primaryKey + " = ?")) {
+            Field pkField = fields.stream().filter(f -> f.getName().equals(primaryKey)).findFirst().orElseThrow();
+            pkField.setAccessible(true);
+            Object pkValue = serializeFieldValue(pkField.get(obj), pkField);
+            statement.setObject(paramIndex, pkValue);
         }
     }
-
-    private boolean sqlContainsPrimaryKey(String sql, String primaryKey) {
-        return sql.contains("WHERE " + primaryKey + " = ?");
-    }
-
     private Object serializeFieldValue(Object value, Field field) {
         if (value == null) return null;
-        if (field.getType().isEnum()) return ((Enum<?>) value).name();
-        if (Collection.class.isAssignableFrom(field.getType())) return serializeCollection((Collection<?>) value);
-        if (Map.class.isAssignableFrom(field.getType())) return serializeMap((Map<?, ?>) value);
+        Class<?> type = field.getType();
+        if (type == boolean.class || type == Boolean.class) {
+            // boolean -> INTEGER 0/1
+            return (Boolean) value ? 1 : 0;
+        }
         for (SerializerPack pack : packs) {
             for (ObjectSerializer serializer : pack.getSerializers()) {
-                if (serializer.isType(field.getType())) return serializer.serialize(value);
+                if (serializer.canSerialize(type)) {
+                    return serializer.serialize(value);
+                }
             }
+        }
+        if (type.isEnum()) {
+            return ((Enum<?>) value).name();
         }
         return value;
     }
 
-
-    private String serializeCollection(Collection<?> collection) {
-        return "[" + collection.stream().map(this::serializeItem).collect(Collectors.joining(", ")) + "]";
+    public <T> T selectByPrimaryKey(Class<T> clazz, Object primaryKeyValue) {
+        String primaryKey = getPrimaryKeyField(getAllFields(clazz).toArray(new Field[0]));
+        if (primaryKey == null) {
+            throw new RuntimeException("Primary key not defined on class " + clazz.getName());
+        }
+        String sql = "SELECT * FROM " + tableName + " WHERE " + primaryKey + " = ?";
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setObject(1, primaryKeyValue);
+            try (ResultSet rs = statement.executeQuery()) {
+                if (rs.next()) {
+                    return deserializeObject(clazz, rs);
+                }
+                return null;
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Select by primary key failed", e);
+        }
     }
 
-    private String serializeItem(Object item) {
-        if (item == null) return "null";
+    public <T> List<T> selectWhere(Class<T> clazz, String whereClause, Object... params) {
+        String sql = "SELECT * FROM " + tableName + (whereClause == null || whereClause.isEmpty() ? "" : " WHERE " + whereClause);
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            if (params != null) {
+                for (int i = 0; i < params.length; i++) {
+                    statement.setObject(i + 1, params[i]);
+                }
+            }
+            try (ResultSet rs = statement.executeQuery()) {
+                List<T> result = new ArrayList<>();
+                while (rs.next()) {
+                    result.add(deserializeObject(clazz, rs));
+                }
+                return result;
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Select where failed", e);
+        }
+    }
+
+    private <T> T deserializeObject(Class<T> clazz, ResultSet rs) {
+        try {
+            T instance = clazz.getDeclaredConstructor().newInstance();
+            for (Field field : getAllFields(clazz)) {
+                field.setAccessible(true);
+                Object dbValue = rs.getObject(field.getName());
+                Object value = deserializeFieldValue(field, dbValue);
+                field.set(instance, value);
+            }
+            return instance;
+        } catch (Exception e) {
+            throw new RuntimeException("Deserialization failed", e);
+        }
+    }
+
+    private Object deserializeFieldValue(Field field, Object dbValue) {
+        if (dbValue == null) return null;
+        Class<?> type = field.getType();
+
+        if (type == boolean.class || type == Boolean.class) {
+            if (dbValue instanceof Number) {
+                return ((Number) dbValue).intValue() != 0;
+            }
+            return Boolean.parseBoolean(dbValue.toString());
+        }
+
         for (SerializerPack pack : packs) {
             for (ObjectSerializer serializer : pack.getSerializers()) {
-                if (serializer.isType(item.getClass())) return serializer.serialize(item);
+                if (serializer.canSerialize(type)) {
+                    return serializer.deserialize(dbValue.toString());
+                }
             }
         }
-        return item.toString();
-    }
 
-    private String serializeMap(Map<?, ?> map) {
-        return "{" + map.entrySet().stream().map(entry -> entry.getKey() + "=" + entry.getValue()).collect(Collectors.joining(", ")) + "}";
+        if (type.isEnum()) {
+            String enumValue = dbValue.toString();
+            for (Object constant : type.getEnumConstants()) {
+                if (((Enum<?>) constant).name().equalsIgnoreCase(enumValue)) {
+                    return constant;
+                }
+            }
+            throw new IllegalArgumentException("Unknown enum value '" + enumValue + "' for enum " + type.getName());
+        }
+
+        return dbValue;
     }
 
     private List<Field> getAllFields(Object obj) {
+        return getAllFields(obj.getClass());
+    }
+
+    private List<Field> getAllFields(Class<?> clazz) {
         List<Field> fields = new ArrayList<>();
-        Class<?> currentClass = obj.getClass();
-        while (currentClass != null) {
-            fields.addAll(Arrays.asList(currentClass.getDeclaredFields()));
-            currentClass = currentClass.getSuperclass();
+        while (clazz != null && clazz != Object.class) {
+            fields.addAll(Arrays.asList(clazz.getDeclaredFields()));
+            clazz = clazz.getSuperclass();
         }
         return fields;
     }
 
+    private static class SQLiteDialect implements DatabaseDialect {
+
+        @Override
+        public String getSqlType(Class<?> javaType) {
+            if (javaType == int.class || javaType == Integer.class ||
+                    javaType == boolean.class || javaType == Boolean.class) {
+                return "INTEGER";
+            }
+            if (javaType == long.class || javaType == Long.class) {
+                return "BIGINT";
+            }
+            if (javaType == float.class || javaType == Float.class ||
+                    javaType == double.class || javaType == Double.class) {
+                return "REAL";
+            }
+            if (javaType == String.class || javaType.isEnum()) {
+                return "TEXT";
+            }
+            return "BLOB";
+        }
+
+        @Override
+        public String getDefaultValue(Class<?> javaType) {
+            if (javaType == boolean.class || javaType == Boolean.class) {
+                return "0";
+            }
+            if (javaType == int.class || javaType == Integer.class ||
+                    javaType == long.class || javaType == Long.class ||
+                    javaType == float.class || javaType == Float.class ||
+                    javaType == double.class || javaType == Double.class) {
+                return "0";
+            }
+            return "''";
+        }
+
+        @Override
+        public boolean supportsBoolean() {
+            return false;
+        }
+    }
+
     private void executeUpdate(String sql) {
-        try (PreparedStatement statement = connection.prepareStatement(sql)) {
-            statement.executeUpdate();
-            connection.commit();
+        try (Statement statement = connection.createStatement()) {
+            statement.executeUpdate(sql);
         } catch (SQLException e) {
-            try {
-                connection.rollback();
-            } catch (SQLException ex) {
-                throw new RuntimeException(ex);
-            }
-            throw new RuntimeException("Error executing update: " + sql, e);
+            throw new RuntimeException("SQL execution failed: " + sql, e);
         }
-    }
-
-    public List<Object> selectAll(Class<?> clazz) {
-        return select("SELECT * FROM " + tableName, clazz);
-    }
-
-    public List<Object> selectWhere(Class<?> clazz, String where, Object... params) {
-        String sql = "SELECT * FROM " + tableName;
-        if (where != null && !where.isEmpty()) {
-            sql += " WHERE " + where + " = ?";
-        }
-        return select(sql, clazz, params);
-    }
-
-    private List<Object> select(String sql, Class<?> clazz, Object... params) {
-        try (PreparedStatement statement = connection.prepareStatement(sql)) {
-            for (int i = 0; i < params.length; i++) {
-                statement.setObject(i + 1, params[i]);
-            }
-            try (ResultSet resultSet = statement.executeQuery()) {
-                List<Object> result = new ArrayList<>();
-                while (resultSet.next()) {
-                    result.add(deserialize(resultSet, clazz));
-                }
-                return result;
-            }
-        } catch (SQLException | ReflectiveOperationException e) {
-            throw new RuntimeException("Error executing select: " + sql, e);
-        }
-    }
-
-
-    private Object deserialize(ResultSet resultSet, Class<?> clazz) throws SQLException, ReflectiveOperationException {
-        Object obj = clazz.getDeclaredConstructor().newInstance();
-        for (Field field : clazz.getDeclaredFields()) {
-            field.setAccessible(true);
-            Object value = resultSet.getObject(field.getName());
-            field.set(obj, deserializeFieldValue(value, field));
-        }
-        return obj;
-    }
-
-    private Object deserializeFieldValue(Object value, Field field) {
-        if (value == null) return null;
-        if (field.getType().isEnum()) return Enum.valueOf((Class<Enum>) field.getType(), value.toString());
-        if (Collection.class.isAssignableFrom(field.getType())) return deserializeCollection(value.toString(), field);
-        if (Map.class.isAssignableFrom(field.getType())) return deserializeMap(value.toString());
-        for (SerializerPack pack : packs) {
-            for (ObjectSerializer serializer : pack.getSerializers()) {
-                if (serializer.isType(field.getType())) return serializer.deserialize(value.toString());
-            }
-        }
-        return value;
-    }
-
-    private Collection<?> deserializeCollection(String value, Field field) {
-        if (value == null || value.isEmpty() || "[]".equals(value)) return Collections.emptyList();
-        String[] items = value.substring(1, value.length() - 1).split(", ");
-        Type elementType = ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0];
-        if (List.class.isAssignableFrom(field.getType())) {
-            return Arrays.stream(items).map(item -> deserializeItem(item, (Class<?>) elementType)).collect(Collectors.toList());
-        } else if (Set.class.isAssignableFrom(field.getType())) {
-            return Arrays.stream(items).map(item -> deserializeItem(item, (Class<?>) elementType)).collect(Collectors.toSet());
-        }
-        return Collections.emptyList();
-    }
-
-    private Object deserializeItem(String item, Class<?> elementType) {
-        if (elementType.isEnum() || Enum.class.isAssignableFrom(elementType)) {
-            try {
-                Method valueOf = elementType.getMethod("valueOf", String.class);
-                return valueOf.invoke(null, item);
-            } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-                System.err.println("Enum.valueOf çağrısı başarısız: " + e.getMessage());
-                return null;
-            }
-        }
-        for (SerializerPack pack : packs) {
-            for (ObjectSerializer serializer : pack.getSerializers()) {
-                if (serializer.isType(elementType)) return serializer.deserialize(item);
-            }
-        }
-        return item;
-    }
-
-    private Map<?, ?> deserializeMap(String value) {
-        if (value == null || value.isEmpty() || "{}".equals(value)) return Collections.emptyMap();
-        String[] entries = value.substring(1, value.length() - 1).split(", ");
-        Map<Object, Object> map = new HashMap<>();
-        for (String entry : entries) {
-            String[] keyValue = entry.split("=");
-            Object key = deserializeItem(keyValue[0], Object.class);
-            Object val = deserializeItem(keyValue[1], Object.class);
-            map.put(key, val);
-        }
-        return map;
     }
 }
