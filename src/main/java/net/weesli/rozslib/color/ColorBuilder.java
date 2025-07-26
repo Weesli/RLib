@@ -1,71 +1,93 @@
 package net.weesli.rozslib.color;
 
-import net.md_5.bungee.api.ChatColor;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.format.TextColor;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import org.bukkit.ChatColor;
 
 import java.awt.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-
 public class ColorBuilder {
 
-    private static final Pattern RGB_PATTERN = Pattern.compile("\\{#([0-9A-Fa-f]{6})\\}");
-    private static final Pattern GRADIENT_DETAIL_PATTERN = Pattern.compile("\\{#([0-9A-Fa-f]{6})>\\}(.*?)\\{#([0-9A-Fa-f]{6})<\\}");
+    private static final Pattern GRADIENT_PATTERN = Pattern.compile("\\{#([0-9A-Fa-f]{6})>}(.+?)\\{#([0-9A-Fa-f]{6})<}");
+    private static final Pattern HEX_COLOR_PATTERN = Pattern.compile("(&?#[0-9A-Fa-f]{6})");
 
     public static String convertColors(String input) {
-        input = applyGradient(input);
-        input = applyRGB(input);
-        return ChatColor.translateAlternateColorCodes('&', input);
+        Component component = processGradients(input);
+
+        String processed = LegacyComponentSerializer.legacySection().serialize(component);
+        processed = processHexColors(processed);
+
+        processed = ChatColor.translateAlternateColorCodes('&', processed);
+
+        return processed.replaceAll("(?<!&[0-9a-fk-or])&(?!&[0-9a-fk-or])", "");
     }
 
-    private static String applyGradient(String input) {
-        Matcher matcher = GRADIENT_DETAIL_PATTERN.matcher(input);
-        StringBuffer result = new StringBuffer();
+    private static Component processGradients(String input) {
+        TextComponent.Builder builder = Component.text();
+        Matcher matcher = GRADIENT_PATTERN.matcher(input);
+        int lastIndex = 0;
+
         while (matcher.find()) {
-            String startColor = matcher.group(1);
-            String text = matcher.group(2);
-            String endColor = matcher.group(3);
-            input = input.replace(matcher.group(), colorizeGradient(text, new Color(Integer.parseInt(startColor, 16)), new Color(Integer.parseInt(endColor, 16))));
+            if (matcher.start() > lastIndex) {
+                builder.append(Component.text(input.substring(lastIndex, matcher.start())));
+            }
+
+            Color startColor = new Color(Integer.parseInt(matcher.group(1), 16));
+            String content = matcher.group(2);
+            Color endColor = new Color(Integer.parseInt(matcher.group(3), 16));
+
+            builder.append(createGradient(content, startColor, endColor));
+            lastIndex = matcher.end();
         }
 
-        return input;
-    }
-
-    private static String applyRGB(String input) {
-        Matcher matcher = RGB_PATTERN.matcher(input);
-        while (matcher.find()) {
-            String colorCode = matcher.group(1);
-            input = input.replace(matcher.group(), net.md_5.bungee.api.ChatColor.of(new Color(Integer.parseInt(colorCode, 16))).toString());
+        if (lastIndex < input.length()) {
+            builder.append(Component.text(input.substring(lastIndex)));
         }
-        return input;
+
+        return builder.build();
     }
 
-    private static String colorizeGradient(String text, Color startColor, Color endColor) {
-        ChatColor[] gradientColors = createGradient(startColor, endColor, text.length());
-        return applyColorsToText(text, gradientColors);
-    }
+    private static TextComponent createGradient(String text, Color start, Color end) {
+        TextComponent.Builder gradientBuilder = Component.text();
+        int length = text.length();
 
-    private static ChatColor[] createGradient(Color startColor, Color endColor, int length) {
-        ChatColor[] colors = new ChatColor[length];
-        int rStep = (endColor.getRed() - startColor.getRed()) / (length - 1);
-        int gStep = (endColor.getGreen() - startColor.getGreen()) / (length - 1);
-        int bStep = (endColor.getBlue() - startColor.getBlue()) / (length - 1);
+        if (length == 0) {
+            return gradientBuilder.build();
+        }
 
         for (int i = 0; i < length; i++) {
-            int r = startColor.getRed() + rStep * i;
-            int g = startColor.getGreen() + gStep * i;
-            int b = startColor.getBlue() + bStep * i;
-            colors[i] = ChatColor.of(new Color(r, g, b));
+            float ratio = (float) i / (length - 1);
+            int red = (int) (start.getRed() + (end.getRed() - start.getRed()) * ratio);
+            int green = (int) (start.getGreen() + (end.getGreen() - start.getGreen()) * ratio);
+            int blue = (int) (start.getBlue() + (end.getBlue() - start.getBlue()) * ratio);
+
+            gradientBuilder.append(Component.text(text.charAt(i),
+                    TextColor.color(red, green, blue)));
         }
-        return colors;
+
+        return gradientBuilder.build();
     }
 
-    private static String applyColorsToText(String text, ChatColor[] colors) {
-        StringBuilder coloredText = new StringBuilder();
-        for (int i = 0; i < text.length(); i++) {
-            coloredText.append(colors[i]).append(text.charAt(i));
+    private static String processHexColors(String input) {
+        Matcher matcher = HEX_COLOR_PATTERN.matcher(input);
+        StringBuffer buffer = new StringBuffer();
+
+        while (matcher.find()) {
+            String hexCode = matcher.group(1);
+            String cleanHex = hexCode.replaceFirst("&?", "");
+            matcher.appendReplacement(buffer, convertHexToMinecraftFormat(cleanHex));
         }
-        return coloredText.toString();
+        matcher.appendTail(buffer);
+
+        return buffer.toString();
     }
 
+    private static String convertHexToMinecraftFormat(String hex) {
+        String cleanHex = hex.startsWith("#") ? hex.substring(1) : hex;
+        return "§x" + cleanHex.toLowerCase().replaceAll("(.)", "§$1");
+    }
 }
