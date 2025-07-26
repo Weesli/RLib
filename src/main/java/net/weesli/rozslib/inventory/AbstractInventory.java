@@ -6,6 +6,9 @@ import net.weesli.rozslib.RozsLibService;
 import net.weesli.rozslib.color.ColorBuilder;
 import net.weesli.rozslib.enums.InventoryType;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -14,7 +17,10 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
+import javax.annotation.Nullable;
+import java.io.File;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -120,6 +126,22 @@ public abstract class AbstractInventory implements Listener {
         clear();
         this.items = items;
         build();
+    }
+
+    @SuppressWarnings("unchecked")
+    public ClickableItemStack getItemStackFromYaml(File file, String basePath){
+        FileConfiguration configuration = YamlConfiguration.loadConfiguration(file);
+        String material = configuration.getString(basePath + ".material", "STONE");
+        int amount = configuration.getInt(basePath + ".amount", 1);
+        String displayName = configuration.getString(basePath + ".title", "");
+        List<String> lore = (List<String>) configuration.getList(basePath + ".lore", new ArrayList<>());
+        int slot = configuration.getInt(basePath + ".slot", 0);
+        ItemStack itemStack = new ItemStack(Material.getMaterial(material), amount);
+        ItemMeta meta = itemStack.getItemMeta();
+        meta.setDisplayName(ColorBuilder.convertColors(displayName));
+        meta.setLore(lore.stream().map(ColorBuilder::convertColors).toList());
+        itemStack.setItemMeta(meta);
+        return new ClickableItemStack(itemStack, slot);
     }
 
     private void buildLayout(){
