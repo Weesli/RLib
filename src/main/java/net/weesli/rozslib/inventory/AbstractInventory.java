@@ -128,22 +128,6 @@ public abstract class AbstractInventory implements Listener {
         build();
     }
 
-    @SuppressWarnings("unchecked")
-    public ClickableItemStack getItemStackFromYaml(File file, String basePath){
-        FileConfiguration configuration = YamlConfiguration.loadConfiguration(file);
-        String material = configuration.getString(basePath + ".material", "STONE");
-        int amount = configuration.getInt(basePath + ".amount", 1);
-        String displayName = configuration.getString(basePath + ".title", "");
-        List<String> lore = (List<String>) configuration.getList(basePath + ".lore", new ArrayList<>());
-        int slot = configuration.getInt(basePath + ".slot", 0);
-        ItemStack itemStack = new ItemStack(Material.getMaterial(material), amount);
-        ItemMeta meta = itemStack.getItemMeta();
-        meta.setDisplayName(ColorBuilder.convertColors(displayName));
-        meta.setLore(lore.stream().map(ColorBuilder::convertColors).toList());
-        itemStack.setItemMeta(meta);
-        return new ClickableItemStack(itemStack, slot);
-    }
-
     private void buildLayout(){
         if (!layout.isAuto()){
             for (ClickableItemStack item : layout.getLayoutItems()){ // add firstly layout items to inventory

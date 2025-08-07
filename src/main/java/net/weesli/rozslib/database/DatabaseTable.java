@@ -345,7 +345,7 @@ public class DatabaseTable {
                 return valueOf.invoke(null, item);
             } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
                 System.err.println("Enum.valueOf çağrısı başarısız: " + e.getMessage());
-                return null;
+                return null;    
             }
         }
         for (SerializerPack pack : packs) {
