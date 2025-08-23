@@ -12,9 +12,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryCloseEvent;
-import org.bukkit.event.inventory.InventoryOpenEvent;
+import org.bukkit.event.inventory.*;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -144,21 +142,52 @@ public abstract class AbstractInventory implements Listener {
     }
 
     @EventHandler
-    public void handleClick(InventoryClickEvent e) {
-        Player player = (Player) e.getWhoClicked();
-        if (e.getCurrentItem() == null){return;}
-        if (!e.getInventory().equals(getInventory())){return;}
+    public void onInventoryClick(InventoryClickEvent e) {
+        if (!(e.getWhoClicked() instanceof Player)) return;
+        if (e.getClickedInventory() == null) return;
+        if (e.getCurrentItem() == null || e.getCurrentItem().getType().isAir()) return;
 
-        if (!isClickable()) e.setCancelled(true);
-        Optional<ClickableItemStack> event = items.keySet().stream().filter(item -> item.getSlot() == e.getSlot()).findFirst();
-        event.ifPresent(clickableItemStack -> {
-            if (!clickableItemStack.isClickable()){
-                e.setCancelled(true);
-            }
-            items.get(clickableItemStack).accept(e);
-            player.playSound(player, clickableItemStack.getSound(),3,1);
-        });
+        if (!e.getView().getTopInventory().equals(getInventory())) return;
+
+        e.setCancelled(true);
+
+        if (e.getClickedInventory().getType() == org.bukkit.event.inventory.InventoryType.PLAYER) {
+            return;
+        }
+
+        if (e.getClick() == ClickType.DOUBLE_CLICK) {
+            return;
+        }
+
+        if (e.getAction() == InventoryAction.HOTBAR_SWAP
+                || e.getAction() == InventoryAction.COLLECT_TO_CURSOR) {
+            return;
+        }
+
+        Optional<ClickableItemStack> opt = items.keySet().stream()
+                .filter(item -> item.getSlot() == e.getSlot()).findFirst();
+        if (!opt.isPresent()) return;
+
+        ClickableItemStack clickable = opt.get();
+
+        try {
+            items.get(clickable).accept(e);
+            ((Player) e.getWhoClicked()).playSound(
+                    e.getWhoClicked(), clickable.getSound(), 3f, 1f
+            );
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
+
+    @EventHandler
+    public void onInventoryDrag(InventoryDragEvent e) {
+        if (e.getView().getTopInventory().equals(getInventory())) {
+            e.setCancelled(true);
+        }
+    }
+
+
 
     @EventHandler
     public void handleClose(InventoryCloseEvent e){
