@@ -2,29 +2,20 @@ package net.weesli.rozslib.inventory;
 
 import lombok.Getter;
 import lombok.Setter;
-import net.weesli.rozslib.RozsLibService;
 import net.weesli.rozslib.color.ColorBuilder;
 import net.weesli.rozslib.enums.InventoryType;
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.*;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
-
-import javax.annotation.Nullable;
-import java.io.File;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 @Getter@Setter
-public abstract class AbstractInventory implements Listener {
+public abstract class AbstractInventory implements InventoryHolder {
 
     private InventoryType type;
     private int[] blockIndex;
@@ -32,6 +23,7 @@ public abstract class AbstractInventory implements Listener {
     private String title;
     // default size is 9 (1 column)
     private int size = 9;
+    @Getter
     private Inventory inventory;
     private boolean clickable = false; // default is false
     // events
@@ -45,7 +37,6 @@ public abstract class AbstractInventory implements Listener {
         this.size = size;
         this.blockIndex = blockIndex;
         this.type = type;
-        Bukkit.getPluginManager().registerEvents(this, RozsLibService.getPlugin());  // register this class to service plugin
         layout = new InventoryLayout();
     }
 
@@ -81,7 +72,7 @@ public abstract class AbstractInventory implements Listener {
 
         while (usedIndices.contains(availableIndex) || contains(blockIndex, availableIndex)) {
             availableIndex++;
-            if (availableIndex > getSize()) {
+            if (availableIndex >= getSize()) {
                 break;
             }
         }
@@ -110,7 +101,7 @@ public abstract class AbstractInventory implements Listener {
     }
 
     public void build(){
-        inventory = Bukkit.createInventory(null,size, ColorBuilder.convertColors(title));
+        inventory = Bukkit.createInventory(this,size, ColorBuilder.convertColors(title));
         buildLayout();
         for (ClickableItemStack item : items.keySet().stream().sorted(Comparator.comparingInt(ClickableItemStack::getSlot)).toList()){
             try {
@@ -141,14 +132,10 @@ public abstract class AbstractInventory implements Listener {
         }
     }
 
-    @EventHandler
     public void onInventoryClick(InventoryClickEvent e) {
         if (!(e.getWhoClicked() instanceof Player)) return;
         if (e.getClickedInventory() == null) return;
         if (e.getCurrentItem() == null || e.getCurrentItem().getType().isAir()) return;
-
-        if (!e.getView().getTopInventory().equals(getInventory())) return;
-
         e.setCancelled(true);
 
         if (e.getClickedInventory().getType() == org.bukkit.event.inventory.InventoryType.PLAYER) {
@@ -166,7 +153,7 @@ public abstract class AbstractInventory implements Listener {
 
         Optional<ClickableItemStack> opt = items.keySet().stream()
                 .filter(item -> item.getSlot() == e.getSlot()).findFirst();
-        if (!opt.isPresent()) return;
+        if (opt.isEmpty()) return;
 
         ClickableItemStack clickable = opt.get();
 
@@ -180,30 +167,23 @@ public abstract class AbstractInventory implements Listener {
         }
     }
 
-    @EventHandler
     public void onInventoryDrag(InventoryDragEvent e) {
         if (e.getView().getTopInventory().equals(getInventory())) {
             e.setCancelled(true);
         }
     }
 
-
-
-    @EventHandler
     public void handleClose(InventoryCloseEvent e){
-        if (getInventory() == null) return;
         if (!e.getInventory().equals(getInventory())){return;}
         if (closeEvent != null) {
             closeEvent.accept(e);
         }
     }
-    @EventHandler
+
     public void handleOpen(InventoryOpenEvent e){
-        if (getInventory() == null) return;
         if (!e.getInventory().equals(getInventory())){return;}
         if (openEvent!= null) {
             openEvent.accept(e);
         }
     }
-
 }

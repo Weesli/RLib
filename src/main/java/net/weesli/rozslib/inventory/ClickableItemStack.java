@@ -18,4 +18,16 @@ public class ClickableItemStack {
         this.slot = slot;
     }
 
+    @Override
+    public int hashCode() {
+        return slot;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof ClickableItemStack) {
+            return ((ClickableItemStack) obj).slot == slot;
+        }
+        return false;
+    }
 }

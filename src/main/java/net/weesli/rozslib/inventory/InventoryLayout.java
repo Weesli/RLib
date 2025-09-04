@@ -15,7 +15,7 @@ public class InventoryLayout {
     private ItemStack defaultItem;
     private List<ClickableItemStack> layoutItems = new ArrayList<>();
 
-    public InventoryLayout generateLayoutWithStructure(String layout) {
+    public void generateLayoutWithStructure(String layout) {
         List<ClickableItemStack> clickableItems = new ArrayList<>();
         int index = 0;
 
@@ -28,16 +28,14 @@ public class InventoryLayout {
             }
         }
         this.layoutItems = clickableItems;
-        return this;
     }
 
-    public InventoryLayout generateLayoutWithIndex(int... index){
+    public void generateLayoutWithIndex(int... index){
         List<ClickableItemStack> clickableItems = new ArrayList<>();
         for(int i: index){
             clickableItems.add(new ClickableItemStack(defaultItem, i));
         }
         this.layoutItems = clickableItems;
-        return this;
     }
 
     public void fill(ItemStack itemStack, boolean auto){
