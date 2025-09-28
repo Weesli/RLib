@@ -95,7 +95,7 @@ public class PageableInventory extends AbstractInventory {
             addItem(entry.getKey().getItemStack(), entry.getValue());
         }
 
-        build();
+        build(player);
         openInventory(player);
     }
 

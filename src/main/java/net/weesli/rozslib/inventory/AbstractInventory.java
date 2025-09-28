@@ -2,8 +2,10 @@ package net.weesli.rozslib.inventory;
 
 import lombok.Getter;
 import lombok.Setter;
+import net.kyori.adventure.text.Component;
 import net.weesli.rozslib.color.ColorBuilder;
 import net.weesli.rozslib.enums.InventoryType;
+import net.weesli.rozslib.util.StringsUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.*;
@@ -34,6 +36,14 @@ public abstract class AbstractInventory implements InventoryHolder {
 
     public AbstractInventory(String title, int size, InventoryType type, int ...blockIndex) {
         this.title = title;
+        this.size = size;
+        this.blockIndex = blockIndex;
+        this.type = type;
+        layout = new InventoryLayout();
+    }
+
+    public AbstractInventory(Component title, int size, InventoryType type, int ...blockIndex) {
+        this.title = StringsUtil.getSerializer().serialize(title);
         this.size = size;
         this.blockIndex = blockIndex;
         this.type = type;
@@ -92,7 +102,7 @@ public abstract class AbstractInventory implements InventoryHolder {
     }
 
     public void openInventory(Player player){
-        if (inventory == null) build();
+        if (inventory == null) build(player);
         player.openInventory(inventory);
     }
 
@@ -100,8 +110,8 @@ public abstract class AbstractInventory implements InventoryHolder {
         items.clear();
     }
 
-    public void build(){
-        inventory = Bukkit.createInventory(this,size, ColorBuilder.convertColors(title));
+    public void build(Player player){
+        inventory = Bukkit.createInventory(this,size, StringsUtil.apply(title, player));
         buildLayout();
         for (ClickableItemStack item : items.keySet().stream().sorted(Comparator.comparingInt(ClickableItemStack::getSlot)).toList()){
             try {
@@ -110,11 +120,6 @@ public abstract class AbstractInventory implements InventoryHolder {
                 continue;
             }
         }
-    }
-    public void build(Map<ClickableItemStack, Consumer<InventoryClickEvent>> items){
-        clear();
-        this.items = items;
-        build();
     }
 
     private void buildLayout(){

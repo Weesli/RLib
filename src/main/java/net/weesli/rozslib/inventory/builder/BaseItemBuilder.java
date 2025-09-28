@@ -40,6 +40,13 @@ public class BaseItemBuilder {
         return b;
     }
 
+    public static BaseItemBuilder of(String material){
+        BaseItemBuilder b = new BaseItemBuilder();
+        b.itemStack = ItemFormatter.getMaterial(material);
+        b.itemMeta = b.itemStack.getItemMeta();
+        return b;
+    }
+
     public BaseItemBuilder name(String name, @Nullable Player player, TagResolver... resolvers) {
         ensureMeta().displayName(StringsUtil.apply(name, player, resolvers));
         return this;
