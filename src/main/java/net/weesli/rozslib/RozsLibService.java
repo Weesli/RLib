@@ -3,7 +3,6 @@ package net.weesli.rozslib;
 import lombok.Getter;
 import net.weesli.rozslib.events.LibListener;
 import net.weesli.rozslib.inventory.InventoryListener;
-import net.weesli.rozslib.inventory.ItemBuilder;
 import org.bukkit.plugin.Plugin;
 import java.util.logging.Level;
 import java.util.logging.Logger;
