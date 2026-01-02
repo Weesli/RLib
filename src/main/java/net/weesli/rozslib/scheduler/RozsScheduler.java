@@ -1,5 +1,8 @@
 package net.weesli.rozslib.scheduler;
 
+import net.weesli.rozslib.scheduler.task.BukkitRozsTask;
+import net.weesli.rozslib.scheduler.task.FoliaRozsTask;
+import net.weesli.rozslib.scheduler.task.RozsTask;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
@@ -9,75 +12,114 @@ public class RozsScheduler {
 
     private static final boolean IS_FOLIA = isFolia();
 
-    public static void run(Plugin plugin, Runnable task) {
+
+    public static RozsTask run(Plugin plugin, Runnable task) {
         if (IS_FOLIA) {
-            Bukkit.getGlobalRegionScheduler().execute(plugin, task);
+            var scheduled = Bukkit.getGlobalRegionScheduler()
+                    .run(plugin, t -> task.run());
+            return new FoliaRozsTask(scheduled);
         } else {
-            Bukkit.getScheduler().runTask(plugin, task);
+            return new BukkitRozsTask(
+                    Bukkit.getScheduler().runTask(plugin, task)
+            );
         }
     }
 
-    public static void run(Plugin plugin, Location location, Runnable task) {
+    public static RozsTask run(Plugin plugin, Location location, Runnable task) {
         if (IS_FOLIA) {
-            Bukkit.getRegionScheduler().execute(plugin, location, task);
+            var scheduled = Bukkit.getRegionScheduler()
+                    .run(plugin, location, t -> task.run());
+            return new FoliaRozsTask(scheduled);
         } else {
-            Bukkit.getScheduler().runTask(plugin, task);
+            return new BukkitRozsTask(
+                    Bukkit.getScheduler().runTask(plugin, task)
+            );
         }
     }
 
-    public static void run(Plugin plugin, Entity entity, Runnable task) {
+    public static RozsTask run(Plugin plugin, Entity entity, Runnable task) {
         if (IS_FOLIA) {
-            entity.getScheduler().execute(plugin, task, null, 1L);
+            var scheduled = entity.getScheduler()
+                    .run(plugin, t -> task.run(), null);
+            return new FoliaRozsTask(scheduled);
         } else {
-            Bukkit.getScheduler().runTask(plugin, task);
+            return new BukkitRozsTask(
+                    Bukkit.getScheduler().runTask(plugin, task)
+            );
         }
     }
 
-    public static void runLater(Plugin plugin, Runnable task, long delay) {
+
+    public static RozsTask runLater(Plugin plugin, Runnable task, long delay) {
         if (IS_FOLIA) {
-            Bukkit.getGlobalRegionScheduler().runDelayed(plugin, t -> task.run(), delay);
+            var scheduled = Bukkit.getGlobalRegionScheduler()
+                    .runDelayed(plugin, t -> task.run(), delay);
+            return new FoliaRozsTask(scheduled);
         } else {
-            Bukkit.getScheduler().runTaskLater(plugin, task, delay);
+            return new BukkitRozsTask(
+                    Bukkit.getScheduler().runTaskLater(plugin, task, delay)
+            );
         }
     }
 
-    public static void runLater(Plugin plugin, Location location, Runnable task, long delay) {
+    public static RozsTask runLater(Plugin plugin, Location location, Runnable task, long delay) {
         if (IS_FOLIA) {
-            Bukkit.getRegionScheduler().runDelayed(plugin, location, t -> task.run(), delay);
+            var scheduled = Bukkit.getRegionScheduler()
+                    .runDelayed(plugin, location, t -> task.run(), delay);
+            return new FoliaRozsTask(scheduled);
         } else {
-            Bukkit.getScheduler().runTaskLater(plugin, task, delay);
+            return new BukkitRozsTask(
+                    Bukkit.getScheduler().runTaskLater(plugin, task, delay)
+            );
         }
     }
 
-    public static void runLater(Plugin plugin, Entity entity, Runnable task, long delay) {
+    public static RozsTask runLater(Plugin plugin, Entity entity, Runnable task, long delay) {
         if (IS_FOLIA) {
-            entity.getScheduler().runDelayed(plugin, t -> task.run(), null, delay);
+            var scheduled = entity.getScheduler()
+                    .runDelayed(plugin, t -> task.run(), null, delay);
+            return new FoliaRozsTask(scheduled);
         } else {
-            Bukkit.getScheduler().runTaskLater(plugin, task, delay);
+            return new BukkitRozsTask(
+                    Bukkit.getScheduler().runTaskLater(plugin, task, delay)
+            );
         }
     }
 
-    public static void runTimer(Plugin plugin, Runnable task, long delay, long period) {
+
+    public static RozsTask runTimer(Plugin plugin, Runnable task, long delay, long period) {
         if (IS_FOLIA) {
-            Bukkit.getGlobalRegionScheduler().runAtFixedRate(plugin, t -> task.run(), delay, period);
+            var scheduled = Bukkit.getGlobalRegionScheduler()
+                    .runAtFixedRate(plugin, t -> task.run(), delay, period);
+            return new FoliaRozsTask(scheduled);
         } else {
-            Bukkit.getScheduler().runTaskTimer(plugin, task, delay, period);
+            return new BukkitRozsTask(
+                    Bukkit.getScheduler().runTaskTimer(plugin, task, delay, period)
+            );
         }
     }
 
-    public static void runTimer(Plugin plugin, Location location, Runnable task, long delay, long period) {
+    public static RozsTask runTimer(Plugin plugin, Location location, Runnable task, long delay, long period) {
         if (IS_FOLIA) {
-            Bukkit.getRegionScheduler().runAtFixedRate(plugin, location, t -> task.run(), delay, period);
+            var scheduled = Bukkit.getRegionScheduler()
+                    .runAtFixedRate(plugin, location, t -> task.run(), delay, period);
+            return new FoliaRozsTask(scheduled);
         } else {
-            Bukkit.getScheduler().runTaskTimer(plugin, task, delay, period);
+            return new BukkitRozsTask(
+                    Bukkit.getScheduler().runTaskTimer(plugin, task, delay, period)
+            );
         }
     }
 
-    public static void runTimer(Plugin plugin, Entity entity, Runnable task, long delay, long period) {
+    public static RozsTask runTimer(Plugin plugin, Entity entity, Runnable task, long delay, long period) {
         if (IS_FOLIA) {
-            entity.getScheduler().runAtFixedRate(plugin, t -> task.run(), null, delay, period);
+            var scheduled = entity.getScheduler()
+                    .runAtFixedRate(plugin, t -> task.run(), null, delay, period);
+            return new FoliaRozsTask(scheduled);
         } else {
-            Bukkit.getScheduler().runTaskTimer(plugin, task, delay, period);
+            return new BukkitRozsTask(
+                    Bukkit.getScheduler().runTaskTimer(plugin, task, delay, period)
+            );
         }
     }
 
