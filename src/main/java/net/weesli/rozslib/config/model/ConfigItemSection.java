@@ -1,5 +1,6 @@
 package net.weesli.rozslib.config.model;
 
+import lombok.NoArgsConstructor;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import net.weesli.rozsconfig.annotations.ConfigKey;
 import net.weesli.rozslib.inventory.ClickableItemStack;
@@ -11,7 +12,7 @@ import org.bukkit.inventory.ItemStack;
 import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.Objects;
-
+@NoArgsConstructor
 public class ConfigItemSection {
     private String material;
     private String title;

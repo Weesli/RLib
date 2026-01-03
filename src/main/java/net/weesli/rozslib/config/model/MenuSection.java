@@ -1,11 +1,12 @@
 package net.weesli.rozslib.config.model;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import net.weesli.rozslib.inventory.types.PageableInventory;
 import net.weesli.rozslib.inventory.types.SimpleInventory;
 
 import java.util.Map;
-@Getter
+@Getter@NoArgsConstructor
 public class MenuSection {
     private String title;
     private Integer size;

@@ -1,13 +1,14 @@
 package net.weesli.rozslib.config.model;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import net.weesli.rozslib.database.ConnectionInfo;
 import net.weesli.rozslib.database.DatabaseFactory;
 import net.weesli.rozslib.enums.DatabaseType;
 
 import java.nio.file.Path;
 import java.sql.Connection;
-
+@NoArgsConstructor
 @Getter
 public class DatabaseSection {
     private String driver;
