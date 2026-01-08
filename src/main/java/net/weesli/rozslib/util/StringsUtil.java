@@ -12,10 +12,7 @@ import javax.annotation.Nullable;
 
 public class StringsUtil {
 
-    private static final LegacyComponentSerializer serializer = LegacyComponentSerializer.builder()
-            .hexColors()
-            .character('&')
-            .build();
+    private static final LegacyComponentSerializer serializer = LegacyComponentSerializer.legacySection();
 
     public static Component applyColors(String input, TagResolver... tagResolvers) {
         return ColorBuilder.convertColors(input, tagResolvers);
