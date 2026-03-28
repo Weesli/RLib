@@ -8,10 +8,11 @@ import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.plugin.Plugin;
 
+import java.util.concurrent.TimeUnit;
+
 public class RozsScheduler {
 
     private static final boolean IS_FOLIA = isFolia();
-
 
     public static RozsTask run(Plugin plugin, Runnable task) {
         if (IS_FOLIA) {
@@ -49,7 +50,6 @@ public class RozsScheduler {
         }
     }
 
-
     public static RozsTask runLater(Plugin plugin, Runnable task, long delay) {
         if (IS_FOLIA) {
             var scheduled = Bukkit.getGlobalRegionScheduler()
@@ -86,7 +86,6 @@ public class RozsScheduler {
         }
     }
 
-
     public static RozsTask runTimer(Plugin plugin, Runnable task, long delay, long period) {
         if (IS_FOLIA) {
             var scheduled = Bukkit.getGlobalRegionScheduler()
@@ -119,6 +118,42 @@ public class RozsScheduler {
         } else {
             return new BukkitRozsTask(
                     Bukkit.getScheduler().runTaskTimer(plugin, task, delay, period)
+            );
+        }
+    }
+
+    public static RozsTask runAsync(Plugin plugin, Runnable task) {
+        if (IS_FOLIA) {
+            var scheduled = Bukkit.getAsyncScheduler()
+                    .runNow(plugin, t -> task.run());
+            return new FoliaRozsTask(scheduled);
+        } else {
+            return new BukkitRozsTask(
+                    Bukkit.getScheduler().runTaskAsynchronously(plugin, task)
+            );
+        }
+    }
+
+    public static RozsTask runLaterAsync(Plugin plugin, Runnable task, long delay) {
+        if (IS_FOLIA) {
+            var scheduled = Bukkit.getAsyncScheduler()
+                    .runDelayed(plugin, t -> task.run(), delay * 50L, TimeUnit.MILLISECONDS);
+            return new FoliaRozsTask(scheduled);
+        } else {
+            return new BukkitRozsTask(
+                    Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, task, delay)
+            );
+        }
+    }
+
+    public static RozsTask runTimerAsync(Plugin plugin, Runnable task, long delay, long period) {
+        if (IS_FOLIA) {
+            var scheduled = Bukkit.getAsyncScheduler()
+                    .runAtFixedRate(plugin, t -> task.run(), delay * 50L, period * 50L, TimeUnit.MILLISECONDS);
+            return new FoliaRozsTask(scheduled);
+        } else {
+            return new BukkitRozsTask(
+                    Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, task, delay, period)
             );
         }
     }
