@@ -6,7 +6,7 @@
 
     <groupId>net.weesli</groupId>
     <artifactId>rozslib</artifactId>
-    <version>2.7.5</version>
+    <version>2.7.6</version>
     <packaging>jar</packaging>
 
     <name>Rozslib</name>
@@ -136,7 +136,7 @@
         <dependency>
             <groupId>com.github.Weesli</groupId>
             <artifactId>RozsConfig</artifactId>
-            <version>1.6.3</version>
+            <version>1.6.4</version>
         </dependency>
         <dependency>
             <groupId>com.github.retrooper</groupId>
